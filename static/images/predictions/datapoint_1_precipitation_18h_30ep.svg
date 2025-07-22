@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <pattern id="rainPattern18h30ep" patternUnits="userSpaceOnUse" width="6" height="25">
+      <line x1="3" y1="0" x2="3" y2="25" stroke="#2b6cb0" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="#f7fafc"/>
+  <rect x="50" y="50" width="700" height="500" fill="#e6fffa"/>
+  <rect x="50" y="180" width="700" height="300" fill="url(#rainPattern18h30ep)" opacity="0.8"/>
+  <circle cx="180" cy="120" r="40" fill="#2b6cb0" opacity="0.7"/>
+  <circle cx="380" cy="140" r="35" fill="#2b6cb0" opacity="0.6"/>
+  <circle cx="580" cy="130" r="45" fill="#2b6cb0" opacity="0.8"/>
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2d3748">
+    Precipitation Prediction - Location A
+  </text>
+  <text x="400" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">
+    18 hours lead time | 30 epochs training
+  </text>
+  <text x="400" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">
+    Expected: 25mm | Probability: 90% | Duration: 8 hours | Confidence: 92%
+  </text>
+</svg>

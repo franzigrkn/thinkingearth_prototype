@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block title %}About - Earth as a Graph{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <div class="about-hero">
+        <h1 class="about-title">
+            <i class="fas fa-info-circle"></i>
+            About Earth as a Graph
+        </h1>
+        <p class="about-subtitle">
+            Understanding our planet through data visualization and machine learning
+        </p>
+    </div>
+
+    <div class="about-content">
+        <div class="about-section">
+            <h2 class="section-heading">
+                <i class="fas fa-bullseye"></i>
+                Project Overview
+            </h2>
+            <p>
+                Earth as a Graph is an innovative project that combines machine learning with interactive 
+                data visualization to provide insights into Earth's complex systems. Our platform allows 
+                researchers and enthusiasts to explore predictions across multiple temporal scales and 
+                geographical locations.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2 class="section-heading">
+                <i class="fas fa-cogs"></i>
+                How It Works
+            </h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Machine Learning Models</h3>
+                    <p>Our models are trained on extensive datasets to predict environmental variables with varying lead times and epoch configurations.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Interactive Visualization</h3>
+                    <p>Real-time visualization interface allows users to explore predictions across different parameters and time horizons.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Multi-Location Analysis</h3>
+                    <p>Compare predictions across different geographical locations to understand regional variations and patterns.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2 class="section-heading">
+                <i class="fas fa-database"></i>
+                Data & Methodology
+            </h2>
+            <p>
+                Our approach leverages state-of-the-art machine learning techniques to process and analyze 
+                environmental data. The models are trained using multiple epochs to ensure convergence and 
+                reliability, with predictions available for different lead times to support various 
+                decision-making timeframes.
+            </p>
+            
+            <div class="methodology-stats">
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Geographic Locations</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Environmental Variables</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Lead Time Options</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Training Epochs</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2 class="section-heading">
+                <i class="fas fa-users"></i>
+                Team & Contact
+            </h2>
+            <p>
+                This project is developed by a team of researchers passionate about environmental science 
+                and machine learning. For more information, collaborations, or questions about the project, 
+                please feel free to reach out.
+            </p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>contact@earthasagraph.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <span>github.com/earthasagraph</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-university"></i>
+                    <span>Research Institution</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2 class="section-heading">
+                <i class="fas fa-rocket"></i>
+                Future Developments
+            </h2>
+            <ul class="future-list">
+                <li><i class="fas fa-check-circle"></i> Real-time data integration</li>
+                <li><i class="fas fa-check-circle"></i> Enhanced model accuracy</li>
+                <li><i class="fas fa-check-circle"></i> Additional geographical coverage</li>
+                <li><i class="fas fa-check-circle"></i> API access for researchers</li>
+                <li><i class="fas fa-check-circle"></i> Mobile application development</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
