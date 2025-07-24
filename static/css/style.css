@@ -6,11 +6,47 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: #2d3748;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #416D74 0%, #2d4f52 100%);
     min-height: 100vh;
+}
+
+/* Enhanced Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.logo {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+.section-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.btn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.control-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.nav-link {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 .container {
@@ -33,20 +69,43 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 20px;
+    padding: 1.25rem 20px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+}
+
+.logo-image {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #4a5568;
+    font-size: 2.2rem;
+    font-weight: 400;
+    color: #339587;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin: 0;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    font-style: normal;
+    text-shadow: none;
+    transition: color 0.3s ease;
+}
+
+.logo:hover {
+    color: #2d7a6e;
 }
 
 .logo i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .nav {
@@ -65,7 +124,7 @@ body {
 
 .nav-link:hover,
 .nav-link.active {
-    background: #667eea;
+    background: #416D74;
     color: white;
 }
 
@@ -92,7 +151,7 @@ body {
 }
 
 .section-title i {
-    color: #ffd700;
+    color: #7cb342;
 }
 
 /* Controls section */
@@ -109,7 +168,7 @@ body {
 }
 
 .controls-section .section-title i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .controls-grid {
@@ -134,7 +193,7 @@ body {
 }
 
 .control-label i {
-    color: #667eea;
+    color: #416D74;
     width: 16px;
 }
 
@@ -151,8 +210,8 @@ body {
 
 .control-select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #416D74;
+    box-shadow: 0 0 0 3px rgba(65, 109, 116, 0.1);
 }
 
 .action-buttons {
@@ -176,14 +235,14 @@ body {
 }
 
 .btn-primary {
-    background: #667eea;
+    background: #416D74;
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #5a67d8;
+    background: #2d4f52;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(65, 109, 116, 0.4);
 }
 
 .btn-primary:disabled {
@@ -216,7 +275,7 @@ body {
 }
 
 .visualization-section .section-title i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .visualization-container {
@@ -255,14 +314,14 @@ body {
     align-items: center;
     justify-content: center;
     height: 400px;
-    color: #667eea;
+    color: #416D74;
 }
 
 .spinner {
     width: 40px;
     height: 40px;
     border: 4px solid #e2e8f0;
-    border-top: 4px solid #667eea;
+    border-top: 4px solid #416D74;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -302,7 +361,7 @@ body {
 }
 
 .metadata-item i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .image-wrapper {
@@ -350,7 +409,7 @@ body {
 }
 
 .info-section .section-title i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .info-cards {
@@ -374,7 +433,7 @@ body {
 .info-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #416D74, #2d4f52);
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -437,7 +496,7 @@ body {
 }
 
 .about-title i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .about-subtitle {
@@ -472,7 +531,7 @@ body {
 }
 
 .section-heading i {
-    color: #667eea;
+    color: #416D74;
 }
 
 .about-section p {
@@ -503,7 +562,7 @@ body {
 .feature-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #416D74, #2d4f52);
     border-radius: 0.75rem;
     display: flex;
     align-items: center;
@@ -548,7 +607,7 @@ body {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: #667eea;
+    color: #416D74;
     margin-bottom: 0.25rem;
 }
 
@@ -576,7 +635,7 @@ body {
 }
 
 .contact-item i {
-    color: #667eea;
+    color: #416D74;
     width: 20px;
 }
 
