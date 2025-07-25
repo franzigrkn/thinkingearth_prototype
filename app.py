@@ -26,8 +26,12 @@ LEAD_TIMES = {
 EPOCHS = {
     '10': '10 epochs',
     '20': '20 epochs',
-    '30': '30 epochs',
-    '40': '40 epochs'
+    '40': '40 epochs',
+    '60': '60 epochs',
+    '80': '80 epochs',
+    '100': '100 epochs',
+    '150': '150 epochs',
+    '200': '200 epochs'
 }
 
 @app.route('/')
@@ -103,4 +107,4 @@ if __name__ == '__main__':
     
     # Get port from environment variable (for deployment platforms)
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True, threaded=True, use_reloader=True)
+    app.run(host='0.0.0.0', port=port, debug=False)

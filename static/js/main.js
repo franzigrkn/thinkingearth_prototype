@@ -17,15 +17,31 @@ const loadingSpinner = document.getElementById('loading-spinner');
 const placeholderMessage = document.getElementById('placeholder-message');
 const imageContainer = document.getElementById('image-container');
 const predictionImage = document.getElementById('prediction-image');
-const imageError = document.getElementById('image-error');
+const groundTruthImage = document.getElementById('ground-truth-image');
+const predictionError = document.getElementById('prediction-error');
+const groundTruthError = document.getElementById('ground-truth-error');
 const datapointName = document.getElementById('datapoint-name');
 const variableName = document.getElementById('variable-name');
 const leadTimeName = document.getElementById('lead-time-name');
 const epochName = document.getElementById('epoch-name');
 
+// Grouping section DOM elements
+const groupingLoadingSpinner = document.getElementById('grouping-loading-spinner');
+const groupingPlaceholderMessage = document.getElementById('grouping-placeholder-message');
+const groupingImageContainer = document.getElementById('grouping-image-container');
+const groupingImage = document.getElementById('grouping-image');
+const groupingError = document.getElementById('grouping-error');
+
 // Initialize the visualization controls
 function initializeVisualizationControls() {
     console.log('Initializing visualization controls...');
+    
+    // Debug: Check if all DOM elements are found
+    console.log('DOM elements check:');
+    console.log('predictionImage:', predictionImage);
+    console.log('groundTruthImage:', groundTruthImage);
+    console.log('predictionError:', predictionError);
+    console.log('groundTruthError:', groundTruthError);
     
     // Add event listeners
     datapointSelect.addEventListener('change', handleDatapointChange);
@@ -106,11 +122,20 @@ async function loadVisualization() {
     showLoadingState();
     
     try {
-        // Construct image URL with all parameters
-        const imageUrl = `/api/image/${currentDatapoint}/${currentVariable}/${currentLeadTime}/${currentEpoch}`;
+        // Determine which prediction image to load
+        let predictionImageUrl;
+        if (currentVariable === 'windspeed') {
+            predictionImageUrl = `/static/images/predictions/windspeed_${currentEpoch}.png`;
+        } else {
+            predictionImageUrl = '/static/images/predictions/placeholder.svg';
+        }
         
-        // Load the image
-        await loadImage(imageUrl);
+        // Load both prediction images and grouping image
+        await Promise.all([
+            loadPredictionImage(predictionImageUrl),
+            loadGroundTruthImage(),
+            loadGroupingImage()
+        ]);
         
         // Update UI with image info
         updateImageInfo();
@@ -119,35 +144,96 @@ async function loadVisualization() {
         showImageState();
         
         console.log('Visualization loaded successfully');
-        showNotification('Visualization loaded successfully', 'success');
+        showNotification('Prediction, ground truth, and grouping images loaded successfully', 'success');
         
     } catch (error) {
         console.error('Error loading visualization:', error);
         showErrorState();
-        showNotification('Failed to load visualization. Please check if the image exists.', 'error');
+        showNotification('Failed to load one or more images. Please check if the files exist.', 'error');
     }
 }
 
-// Load image with promise-based approach
-function loadImage(url) {
+// Load prediction image with promise-based approach
+function loadPredictionImage(url) {
+    console.log('Loading prediction image from:', url);
     return new Promise((resolve, reject) => {
         const img = new Image();
         
         img.onload = () => {
+            console.log('Prediction image loaded successfully');
             predictionImage.src = url;
+            predictionError.style.display = 'none';
             resolve();
         };
         
         img.onerror = () => {
-            reject(new Error('Failed to load image'));
+            console.error('Failed to load prediction image');
+            predictionError.style.display = 'flex';
+            reject(new Error('Failed to load prediction image'));
         };
         
         // Set a timeout for loading
         setTimeout(() => {
-            reject(new Error('Image loading timeout'));
+            reject(new Error('Prediction image loading timeout'));
         }, 10000);
         
         img.src = url;
+    });
+}
+
+// Load ground truth image
+function loadGroundTruthImage() {
+    console.log('Loading ground truth image');
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        
+        img.onload = () => {
+            console.log('Ground truth image loaded successfully');
+            groundTruthImage.src = '/static/images/predictions/ground_truth.png';
+            groundTruthError.style.display = 'none';
+            resolve();
+        };
+        
+        img.onerror = () => {
+            console.error('Failed to load ground truth image');
+            groundTruthError.style.display = 'flex';
+            reject(new Error('Failed to load ground truth image'));
+        };
+        
+        // Set a timeout for loading
+        setTimeout(() => {
+            reject(new Error('Ground truth image loading timeout'));
+        }, 10000);
+        
+        img.src = '/static/images/predictions/ground_truth.png';
+    });
+}
+
+// Load grouping image
+function loadGroupingImage() {
+    console.log('Loading grouping image');
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        
+        img.onload = () => {
+            console.log('Grouping image loaded successfully');
+            groupingImage.src = '/static/images/attention/grouping.png';
+            groupingError.style.display = 'none';
+            resolve();
+        };
+        
+        img.onerror = () => {
+            console.error('Failed to load grouping image');
+            groupingError.style.display = 'flex';
+            reject(new Error('Failed to load grouping image'));
+        };
+        
+        // Set a timeout for loading
+        setTimeout(() => {
+            reject(new Error('Grouping image loading timeout'));
+        }, 10000);
+        
+        img.src = '/static/images/attention/grouping.png';
     });
 }
 
@@ -162,9 +248,6 @@ function updateImageInfo() {
     variableName.textContent = variableText;
     leadTimeName.textContent = leadTimeText;
     epochName.textContent = epochText;
-    
-    document.getElementById('image-title').textContent = 
-        `${variableText} Prediction for ${datapointText} (${leadTimeText}, ${epochText})`;
 }
 
 // Show loading state
@@ -172,6 +255,10 @@ function showLoadingState() {
     placeholderMessage.style.display = 'none';
     imageContainer.style.display = 'none';
     loadingSpinner.style.display = 'flex';
+    
+    groupingPlaceholderMessage.style.display = 'none';
+    groupingImageContainer.style.display = 'none';
+    groupingLoadingSpinner.style.display = 'flex';
     
     loadButton.disabled = true;
     loadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
@@ -182,7 +269,13 @@ function showImageState() {
     loadingSpinner.style.display = 'none';
     placeholderMessage.style.display = 'none';
     imageContainer.style.display = 'block';
-    imageError.style.display = 'none';
+    predictionError.style.display = 'none';
+    groundTruthError.style.display = 'none';
+    
+    groupingLoadingSpinner.style.display = 'none';
+    groupingPlaceholderMessage.style.display = 'none';
+    groupingImageContainer.style.display = 'block';
+    groupingError.style.display = 'none';
     
     loadButton.disabled = false;
     updateLoadButtonState();
@@ -193,7 +286,10 @@ function showErrorState() {
     loadingSpinner.style.display = 'none';
     placeholderMessage.style.display = 'none';
     imageContainer.style.display = 'block';
-    imageError.style.display = 'flex';
+    
+    groupingLoadingSpinner.style.display = 'none';
+    groupingPlaceholderMessage.style.display = 'none';
+    groupingImageContainer.style.display = 'block';
     
     loadButton.disabled = false;
     updateLoadButtonState();
@@ -217,6 +313,10 @@ function resetControls() {
     placeholderMessage.style.display = 'flex';
     imageContainer.style.display = 'none';
     loadingSpinner.style.display = 'none';
+    
+    groupingPlaceholderMessage.style.display = 'flex';
+    groupingImageContainer.style.display = 'none';
+    groupingLoadingSpinner.style.display = 'none';
     
     // Update button state
     updateLoadButtonState();

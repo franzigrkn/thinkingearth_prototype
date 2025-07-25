@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f7fafc"/>
+  
+  <!-- Border -->
+  <rect x="10" y="10" width="380" height="280" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Brain/Network Icon -->
+  <circle cx="200" cy="120" r="30" fill="#4a9b8e" opacity="0.3"/>
+  
+  <!-- Network nodes -->
+  <circle cx="180" cy="105" r="4" fill="#4a9b8e"/>
+  <circle cx="200" cy="95" r="4" fill="#4a9b8e"/>
+  <circle cx="220" cy="105" r="4" fill="#4a9b8e"/>
+  <circle cx="185" cy="125" r="4" fill="#4a9b8e"/>
+  <circle cx="200" cy="135" r="4" fill="#4a9b8e"/>
+  <circle cx="215" cy="125" r="4" fill="#4a9b8e"/>
+  
+  <!-- Connections -->
+  <line x1="180" y1="105" x2="200" y2="95" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="200" y1="95" x2="220" y2="105" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="180" y1="105" x2="185" y2="125" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="200" y1="95" x2="200" y2="135" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="220" y1="105" x2="215" y2="125" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="185" y1="125" x2="200" y2="135" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  <line x1="200" y1="135" x2="215" y2="125" stroke="#4a9b8e" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Text -->
+  <text x="200" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#4a5568">Attention-based Spatial Grouping</text>
+  <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#718096">Placeholder Image</text>
+  <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#a0aec0">Replace with actual grouping data</text>
+</svg>
