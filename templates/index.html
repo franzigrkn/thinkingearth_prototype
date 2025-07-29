@@ -36,19 +36,6 @@
             </div>
 
             <div class="control-group">
-                <label for="lead-time-select" class="control-label">
-                    <i class="fas fa-clock"></i>
-                    Select Lead Time
-                </label>
-                <select id="lead-time-select" class="control-select">
-                    <option value="">Choose lead time...</option>
-                    {% for key, name in lead_times.items() %}
-                    <option value="{{ key }}">{{ name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="control-group">
                 <label for="epoch-select" class="control-label">
                     <i class="fas fa-layer-group"></i>
                     Select Training Epoch
@@ -89,7 +76,7 @@
             <div id="placeholder-message" class="placeholder-message">
                 <i class="fas fa-image"></i>
                 <h3>Select parameters to view predictions</h3>
-                <p>Use the controls above to choose datapoint, variable, lead time, and epoch for visualization.</p>
+                <p>Use the controls above to choose datetime, variable, and epoch for visualization.</p>
             </div>
             
             <div id="image-container" class="image-container" style="display: none;">
@@ -102,10 +89,6 @@
                         <span id="variable-info" class="metadata-item">
                             <i class="fas fa-tag"></i>
                             <span id="variable-name"></span>
-                        </span>
-                        <span id="lead-time-info" class="metadata-item">
-                            <i class="fas fa-clock"></i>
-                            <span id="lead-time-name"></span>
                         </span>
                         <span id="epoch-info" class="metadata-item">
                             <i class="fas fa-layer-group"></i>
@@ -154,7 +137,7 @@
             <div id="grouping-placeholder-message" class="placeholder-message">
                 <i class="fas fa-layer-group"></i>
                 <h3>Select parameters to view spatial grouping</h3>
-                <p>Choose date, lead time, and training epoch above to visualize attention-based spatial grouping.</p>
+                <p>Choose datetime, variable, and training epoch above to visualize attention-based spatial grouping.</p>
             </div>
             
             <div id="grouping-image-container" class="image-container" style="display: none;">
@@ -192,14 +175,6 @@
                 </div>
                 <h3>Variables</h3>
                 <p>Choose from {{ variables|length }} different prediction variables to explore different aspects of your model's output.</p>
-            </div>
-
-            <div class="info-card">
-                <div class="info-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <h3>Lead Times</h3>
-                <p>Select from {{ lead_times|length }} different time horizons (6, 12, 18 hours) to see how predictions rollout over time.</p>
             </div>
             
             <div class="info-card">

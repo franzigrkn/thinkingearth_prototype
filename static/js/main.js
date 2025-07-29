@@ -3,13 +3,11 @@
 // Global state
 let currentDatapoint = '';
 let currentVariable = '';
-let currentLeadTime = '';
 let currentEpoch = '';
 
 // DOM elements
 const datapointSelect = document.getElementById('datapoint-select');
 const variableSelect = document.getElementById('variable-select');
-const leadTimeSelect = document.getElementById('lead-time-select');
 const epochSelect = document.getElementById('epoch-select');
 const loadButton = document.getElementById('load-visualization');
 const resetButton = document.getElementById('reset-controls');
@@ -22,7 +20,6 @@ const predictionError = document.getElementById('prediction-error');
 const groundTruthError = document.getElementById('ground-truth-error');
 const datapointName = document.getElementById('datapoint-name');
 const variableName = document.getElementById('variable-name');
-const leadTimeName = document.getElementById('lead-time-name');
 const epochName = document.getElementById('epoch-name');
 
 // Grouping section DOM elements
@@ -46,7 +43,6 @@ function initializeVisualizationControls() {
     // Add event listeners
     datapointSelect.addEventListener('change', handleDatapointChange);
     variableSelect.addEventListener('change', handleVariableChange);
-    leadTimeSelect.addEventListener('change', handleLeadTimeChange);
     epochSelect.addEventListener('change', handleEpochChange);
     loadButton.addEventListener('click', loadVisualization);
     resetButton.addEventListener('click', resetControls);
@@ -71,13 +67,6 @@ function handleVariableChange(event) {
     updateLoadButtonState();
 }
 
-// Handle lead time selection change
-function handleLeadTimeChange(event) {
-    currentLeadTime = event.target.value;
-    console.log('Lead time changed to:', currentLeadTime);
-    updateLoadButtonState();
-}
-
 // Handle epoch selection change
 function handleEpochChange(event) {
     currentEpoch = event.target.value;
@@ -89,10 +78,9 @@ function handleEpochChange(event) {
 function updateLoadButtonState() {
     const hasDatapoint = currentDatapoint !== '';
     const hasVariable = currentVariable !== '';
-    const hasLeadTime = currentLeadTime !== '';
     const hasEpoch = currentEpoch !== '';
     
-    const allSelected = hasDatapoint && hasVariable && hasLeadTime && hasEpoch;
+    const allSelected = hasDatapoint && hasVariable && hasEpoch;
     
     loadButton.disabled = !allSelected;
     
@@ -102,7 +90,6 @@ function updateLoadButtonState() {
         const missing = [];
         if (!hasDatapoint) missing.push('datapoint');
         if (!hasVariable) missing.push('variable');
-        if (!hasLeadTime) missing.push('lead time');
         if (!hasEpoch) missing.push('epoch');
         
         loadButton.innerHTML = `<i class="fas fa-eye"></i> Select ${missing.join(', ')}`;
@@ -111,29 +98,40 @@ function updateLoadButtonState() {
 
 // Load and display the visualization
 async function loadVisualization() {
-    if (!currentDatapoint || !currentVariable || !currentLeadTime || !currentEpoch) {
-        showNotification('Please select all parameters: datapoint, variable, lead time, and epoch', 'error');
+    if (!currentDatapoint || !currentVariable || !currentEpoch) {
+        showNotification('Please select all parameters: datapoint, variable, and epoch', 'error');
         return;
     }
     
-    console.log(`Loading visualization for datapoint: ${currentDatapoint}, variable: ${currentVariable}, lead time: ${currentLeadTime}, epoch: ${currentEpoch}`);
+    console.log(`Loading visualization for datapoint: ${currentDatapoint}, variable: ${currentVariable}, epoch: ${currentEpoch}`);
     
     // Show loading state
     showLoadingState();
     
     try {
-        // Determine which prediction image to load
+        // Determine which images to load based on variable
         let predictionImageUrl;
-        if (currentVariable === 'windspeed') {
-            predictionImageUrl = `/static/images/predictions/windspeed_${currentEpoch}.png`;
+        let groundTruthImageUrl;
+        
+        if (currentVariable === 'temperature') {
+            predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
+            groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
+        } else if (currentVariable === 'windspeed') {
+            predictionImageUrl = '/static/images/predictions/visualization_output_windspeed_pred.png';
+            groundTruthImageUrl = '/static/images/predictions/visualization_output_windspeed_target.png';
+        } else if (currentVariable === 'u500') {
+            predictionImageUrl = '/static/images/predictions/visualization_output_u500_pred.png';
+            groundTruthImageUrl = '/static/images/predictions/visualization_output_u500_target.png';
         } else {
+            // Fallback to placeholder images
             predictionImageUrl = '/static/images/predictions/placeholder.svg';
+            groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
         }
         
         // Load both prediction images and grouping image
         await Promise.all([
             loadPredictionImage(predictionImageUrl),
-            loadGroundTruthImage(),
+            loadGroundTruthImage(groundTruthImageUrl),
             loadGroupingImage()
         ]);
         
@@ -182,14 +180,14 @@ function loadPredictionImage(url) {
 }
 
 // Load ground truth image
-function loadGroundTruthImage() {
-    console.log('Loading ground truth image');
+function loadGroundTruthImage(url) {
+    console.log('Loading ground truth image from:', url);
     return new Promise((resolve, reject) => {
         const img = new Image();
         
         img.onload = () => {
             console.log('Ground truth image loaded successfully');
-            groundTruthImage.src = '/static/images/predictions/ground_truth.png';
+            groundTruthImage.src = url;
             groundTruthError.style.display = 'none';
             resolve();
         };
@@ -205,7 +203,7 @@ function loadGroundTruthImage() {
             reject(new Error('Ground truth image loading timeout'));
         }, 10000);
         
-        img.src = '/static/images/predictions/ground_truth.png';
+        img.src = url;
     });
 }
 
@@ -241,12 +239,10 @@ function loadGroupingImage() {
 function updateImageInfo() {
     const datapointText = datapointSelect.options[datapointSelect.selectedIndex].text;
     const variableText = variableSelect.options[variableSelect.selectedIndex].text;
-    const leadTimeText = leadTimeSelect.options[leadTimeSelect.selectedIndex].text;
     const epochText = epochSelect.options[epochSelect.selectedIndex].text;
     
     datapointName.textContent = datapointText;
     variableName.textContent = variableText;
-    leadTimeName.textContent = leadTimeText;
     epochName.textContent = epochText;
 }
 
@@ -302,11 +298,9 @@ function resetControls() {
     // Reset selections
     datapointSelect.value = '';
     variableSelect.value = '';
-    leadTimeSelect.value = '';
     epochSelect.value = '';
     currentDatapoint = '';
     currentVariable = '';
-    currentLeadTime = '';
     currentEpoch = '';
     
     // Reset UI state
