@@ -26,6 +26,7 @@ VARIABLES = {
 }
 
 EPOCHS = {
+    '5': '5 epochs',
     '10': '10 epochs',
     '20': '20 epochs',
     '40': '40 epochs',

@@ -109,23 +109,45 @@ async function loadVisualization() {
     showLoadingState();
     
     try {
-        // Determine which images to load based on variable
+        // Determine which images to load based on variable and epoch
         let predictionImageUrl;
         let groundTruthImageUrl;
         
-        if (currentVariable === 'temperature') {
-            predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
-            groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
-        } else if (currentVariable === 'windspeed') {
-            predictionImageUrl = '/static/images/predictions/visualization_output_windspeed_pred.png';
-            groundTruthImageUrl = '/static/images/predictions/visualization_output_windspeed_target.png';
-        } else if (currentVariable === 'u500') {
-            predictionImageUrl = '/static/images/predictions/visualization_output_u500_pred.png';
-            groundTruthImageUrl = '/static/images/predictions/visualization_output_u500_target.png';
+        if (currentEpoch === '5') {
+            // For epoch 5, use the specific datetime-based images
+            let variableCode;
+            if (currentVariable === 'temperature') {
+                variableCode = 't2m';
+            } else if (currentVariable === 'windspeed') {
+                variableCode = 'windspeed';
+            } else if (currentVariable === 'u500') {
+                variableCode = 'u500';
+            }
+            
+            if (variableCode) {
+                predictionImageUrl = `/static/images/predictions/epoch5/visualization_output_${variableCode}_epoch5_${currentDatapoint}_pred.png`;
+                groundTruthImageUrl = `/static/images/predictions/epoch5/visualization_output_${variableCode}_epoch5_${currentDatapoint}_target.png`;
+            } else {
+                // Fallback to placeholder images
+                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
+            }
         } else {
-            // Fallback to placeholder images
-            predictionImageUrl = '/static/images/predictions/placeholder.svg';
-            groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
+            // For other epochs, use the static variable-based images
+            if (currentVariable === 'temperature') {
+                predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
+                groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
+            } else if (currentVariable === 'windspeed') {
+                predictionImageUrl = '/static/images/predictions/visualization_output_windspeed_pred.png';
+                groundTruthImageUrl = '/static/images/predictions/visualization_output_windspeed_target.png';
+            } else if (currentVariable === 'u500') {
+                predictionImageUrl = '/static/images/predictions/visualization_output_u500_pred.png';
+                groundTruthImageUrl = '/static/images/predictions/visualization_output_u500_target.png';
+            } else {
+                // Fallback to placeholder images
+                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
+            }
         }
         
         // Load both prediction images and grouping image
