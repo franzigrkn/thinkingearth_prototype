@@ -129,7 +129,7 @@ async function loadVisualization() {
                 groundTruthImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_target.png`;
             } else {
                 // Fallback to placeholder images
-                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                predictionImageUrl = '/static/images/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
         } else if (parseInt(currentEpoch) > 40) {
@@ -148,7 +148,7 @@ async function loadVisualization() {
                 groundTruthImageUrl = `/static/images/predictions/epoch40/visualization_output_${variableCode}_epoch40_${currentDatapoint}_target.png`;
             } else {
                 // Fallback to placeholder images
-                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                predictionImageUrl = '/static/images/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
         } else {
@@ -164,7 +164,7 @@ async function loadVisualization() {
                 groundTruthImageUrl = '/static/images/predictions/visualization_output_u500_target.png';
             } else {
                 // Fallback to placeholder images
-                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                predictionImageUrl = '/static/images/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
         }
