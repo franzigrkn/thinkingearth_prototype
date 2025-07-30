@@ -113,8 +113,8 @@ async function loadVisualization() {
         let predictionImageUrl;
         let groundTruthImageUrl;
         
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20') {
-            // For epochs 5, 10, and 20, use the specific datetime-based images
+        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40') {
+            // For epochs 5, 10, 20, and 40, use the specific datetime-based images
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -132,12 +132,28 @@ async function loadVisualization() {
                 predictionImageUrl = '/static/images/predictions/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
-        } else {
-            // For other epochs (>20), use the static variable-based images
+        } else if (parseInt(currentEpoch) > 40) {
+            // For epochs >40, use epoch 40 images as fallback
+            let variableCode;
             if (currentVariable === 'temperature') {
-                predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
-                groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
+                variableCode = 't2m';
             } else if (currentVariable === 'windspeed') {
+                variableCode = 'windspeed';
+            } else if (currentVariable === 'u500') {
+                variableCode = 'u500';
+            }
+            
+            if (variableCode) {
+                predictionImageUrl = `/static/images/predictions/epoch40/visualization_output_${variableCode}_epoch40_${currentDatapoint}_pred.png`;
+                groundTruthImageUrl = `/static/images/predictions/epoch40/visualization_output_${variableCode}_epoch40_${currentDatapoint}_target.png`;
+            } else {
+                // Fallback to placeholder images
+                predictionImageUrl = '/static/images/predictions/placeholder.svg';
+                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
+            }
+        } else {
+            // For any other epochs, use the static variable-based images
+            if (currentVariable === 'temperature') {
                 predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
                 groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
             } else if (currentVariable === 'windspeed') {
