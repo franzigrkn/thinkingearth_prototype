@@ -256,11 +256,14 @@ function loadGroupingImage() {
         
         // Determine the correct grouping image URL based on epoch
         let groupingImageUrl;
-        if (currentEpoch === '5' || currentEpoch === '10') {
-            // For epochs 5 and 10, use the epoch-specific segmentation images
+        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40') {
+            // For epochs 5, 10, 20, and 40, use the epoch-specific segmentation images
             groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
+        } else if (parseInt(currentEpoch) > 40) {
+            // For epochs > 40, use epoch 40 images as fallback
+            groupingImageUrl = `/static/images/attention/epoch40/segmentation_output_epoch40_${currentDatapoint}.png`;
         } else {
-            // For all other epochs, use the default grouping image
+            // For all other epochs (< 5), use the default grouping image
             groupingImageUrl = '/static/images/attention/grouping.png';
         }
         
