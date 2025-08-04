@@ -113,8 +113,8 @@ async function loadVisualization() {
         let predictionImageUrl;
         let groundTruthImageUrl;
         
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40') {
-            // For epochs 5, 10, 20, and 40, use the specific datetime-based images
+        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80') {
+            // For epochs 5, 10, 20, 40, 60, and 80, use the specific datetime-based images
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -132,8 +132,8 @@ async function loadVisualization() {
                 predictionImageUrl = '/static/images/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
-        } else if (parseInt(currentEpoch) > 40) {
-            // For epochs >40, use epoch 40 images as fallback
+        } else if (parseInt(currentEpoch) > 80) {
+            // For epochs >80, use epoch 80 images as fallback
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -144,8 +144,8 @@ async function loadVisualization() {
             }
             
             if (variableCode) {
-                predictionImageUrl = `/static/images/predictions/epoch40/visualization_output_${variableCode}_epoch40_${currentDatapoint}_pred.png`;
-                groundTruthImageUrl = `/static/images/predictions/epoch40/visualization_output_${variableCode}_epoch40_${currentDatapoint}_target.png`;
+                predictionImageUrl = `/static/images/predictions/epoch80/visualization_output_${variableCode}_epoch80_${currentDatapoint}_pred.png`;
+                groundTruthImageUrl = `/static/images/predictions/epoch80/visualization_output_${variableCode}_epoch80_${currentDatapoint}_target.png`;
             } else {
                 // Fallback to placeholder images
                 predictionImageUrl = '/static/images/placeholder.svg';
