@@ -254,9 +254,21 @@ function loadGroupingImage() {
     return new Promise((resolve, reject) => {
         const img = new Image();
         
+        // Determine the correct grouping image URL based on epoch
+        let groupingImageUrl;
+        if (currentEpoch === '5' || currentEpoch === '10') {
+            // For epochs 5 and 10, use the epoch-specific segmentation images
+            groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
+        } else {
+            // For all other epochs, use the default grouping image
+            groupingImageUrl = '/static/images/attention/grouping.png';
+        }
+        
+        console.log('Loading grouping image from:', groupingImageUrl);
+        
         img.onload = () => {
             console.log('Grouping image loaded successfully');
-            groupingImage.src = '/static/images/attention/grouping.png';
+            groupingImage.src = groupingImageUrl;
             groupingError.style.display = 'none';
             resolve();
         };
@@ -272,7 +284,7 @@ function loadGroupingImage() {
             reject(new Error('Grouping image loading timeout'));
         }, 10000);
         
-        img.src = '/static/images/attention/grouping.png';
+        img.src = groupingImageUrl;
     });
 }
 
