@@ -133,7 +133,7 @@ async function loadVisualization() {
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
         } else if (parseInt(currentEpoch) > 80) {
-            // For epochs >80, use epoch 80 images as fallback
+            // For epochs >80, use epoch 80 images with the selected datetime as fallback
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -260,8 +260,8 @@ function loadGroupingImage() {
             // For epochs 5, 10, 20, 40, 60, and 80, use the epoch-specific segmentation images
             groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
         } else if (parseInt(currentEpoch) > 80) {
-            // For epochs > 80, use the placeholder grouping image
-            groupingImageUrl = '/static/images/attention/grouping.png';
+            // For epochs > 80, use epoch 80 segmentation images with the selected datetime
+            groupingImageUrl = `/static/images/attention/epoch80/segmentation_output_epoch80_${currentDatapoint}.png`;
         } else {
             // For all other epochs (< 5), use the default grouping image
             groupingImageUrl = '/static/images/attention/grouping.png';
