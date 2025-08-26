@@ -113,8 +113,8 @@ async function loadVisualization() {
         let predictionImageUrl;
         let groundTruthImageUrl;
         
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80') {
-            // For epochs 5, 10, 20, 40, 60, and 80, use the specific datetime-based images
+        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80' || currentEpoch === '100') {
+            // For epochs 5, 10, 20, 40, 60, 80, and 100, use the specific datetime-based images
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -132,8 +132,8 @@ async function loadVisualization() {
                 predictionImageUrl = '/static/images/placeholder.svg';
                 groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
             }
-        } else if (parseInt(currentEpoch) > 80) {
-            // For epochs >80, use epoch 80 images with the selected datetime as fallback
+        } else if (parseInt(currentEpoch) > 100) {
+            // For epochs >100, use epoch 100 images with the selected datetime as fallback
             let variableCode;
             if (currentVariable === 'temperature') {
                 variableCode = 't2m';
@@ -144,8 +144,8 @@ async function loadVisualization() {
             }
             
             if (variableCode) {
-                predictionImageUrl = `/static/images/predictions/epoch80/visualization_output_${variableCode}_epoch80_${currentDatapoint}_pred.png`;
-                groundTruthImageUrl = `/static/images/predictions/epoch80/visualization_output_${variableCode}_epoch80_${currentDatapoint}_target.png`;
+                predictionImageUrl = `/static/images/predictions/epoch100/visualization_output_${variableCode}_epoch100_${currentDatapoint}_pred.png`;
+                groundTruthImageUrl = `/static/images/predictions/epoch100/visualization_output_${variableCode}_epoch100_${currentDatapoint}_target.png`;
             } else {
                 // Fallback to placeholder images
                 predictionImageUrl = '/static/images/placeholder.svg';
@@ -256,12 +256,12 @@ function loadGroupingImage() {
         
         // Determine the correct grouping image URL based on epoch
         let groupingImageUrl;
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80') {
-            // For epochs 5, 10, 20, 40, 60, and 80, use the epoch-specific segmentation images
+        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80' || currentEpoch === '100') {
+            // For epochs 5, 10, 20, 40, 60, 80, and 100, use the epoch-specific segmentation images
             groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
-        } else if (parseInt(currentEpoch) > 80) {
-            // For epochs > 80, use epoch 80 segmentation images with the selected datetime
-            groupingImageUrl = `/static/images/attention/epoch80/segmentation_output_epoch80_${currentDatapoint}.png`;
+        } else if (parseInt(currentEpoch) > 100) {
+            // For epochs > 100, use epoch 100 segmentation images with the selected datetime
+            groupingImageUrl = `/static/images/attention/epoch100/segmentation_output_epoch100_${currentDatapoint}.png`;
         } else {
             // For all other epochs (< 5), use the default grouping image
             groupingImageUrl = '/static/images/attention/grouping.png';
