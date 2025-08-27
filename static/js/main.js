@@ -113,60 +113,22 @@ async function loadVisualization() {
         let predictionImageUrl;
         let groundTruthImageUrl;
         
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80' || currentEpoch === '100' || currentEpoch === '150') {
-            // For epochs 5, 10, 20, 40, 60, 80, 100, and 150, use the specific datetime-based images
-            let variableCode;
-            if (currentVariable === 'temperature') {
-                variableCode = 't2m';
-            } else if (currentVariable === 'windspeed') {
-                variableCode = 'windspeed';
-            } else if (currentVariable === 'u500') {
-                variableCode = 'u500';
-            }
-            
-            if (variableCode) {
-                predictionImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_pred.png`;
-                groundTruthImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_target.png`;
-            } else {
-                // Fallback to placeholder images
-                predictionImageUrl = '/static/images/placeholder.svg';
-                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
-            }
-        } else if (parseInt(currentEpoch) > 150) {
-            // For epochs >150 (like epoch 200), use epoch 150 images with the selected datetime
-            let variableCode;
-            if (currentVariable === 'temperature') {
-                variableCode = 't2m';
-            } else if (currentVariable === 'windspeed') {
-                variableCode = 'windspeed';
-            } else if (currentVariable === 'u500') {
-                variableCode = 'u500';
-            }
-            
-            if (variableCode) {
-                predictionImageUrl = `/static/images/predictions/epoch150/visualization_output_${variableCode}_epoch150_${currentDatapoint}_pred.png`;
-                groundTruthImageUrl = `/static/images/predictions/epoch150/visualization_output_${variableCode}_epoch150_${currentDatapoint}_target.png`;
-            } else {
-                // Fallback to placeholder images
-                predictionImageUrl = '/static/images/placeholder.svg';
-                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
-            }
+        // For all epochs up to 200, load images from their respective folders
+        let variableCode;
+        if (currentVariable === 'temperature') {
+            variableCode = 't2m';
+        } else if (currentVariable === 'windspeed') {
+            variableCode = 'windspeed';
+        } else if (currentVariable === 'u500') {
+            variableCode = 'u500';
+        }
+        if (variableCode) {
+            predictionImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_pred.png`;
+            groundTruthImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_target.png`;
         } else {
-            // For any other epochs, use the static variable-based images
-            if (currentVariable === 'temperature') {
-                predictionImageUrl = '/static/images/predictions/visualization_output_t2m_pred.png';
-                groundTruthImageUrl = '/static/images/predictions/visualization_output_t2m_target.png';
-            } else if (currentVariable === 'windspeed') {
-                predictionImageUrl = '/static/images/predictions/visualization_output_windspeed_pred.png';
-                groundTruthImageUrl = '/static/images/predictions/visualization_output_windspeed_target.png';
-            } else if (currentVariable === 'u500') {
-                predictionImageUrl = '/static/images/predictions/visualization_output_u500_pred.png';
-                groundTruthImageUrl = '/static/images/predictions/visualization_output_u500_target.png';
-            } else {
-                // Fallback to placeholder images
-                predictionImageUrl = '/static/images/placeholder.svg';
-                groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
-            }
+            // Fallback to placeholder images
+            predictionImageUrl = '/static/images/placeholder.svg';
+            groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
         }
         
         // Load both prediction images and grouping image
@@ -254,18 +216,8 @@ function loadGroupingImage() {
     return new Promise((resolve, reject) => {
         const img = new Image();
         
-        // Determine the correct grouping image URL based on epoch
-        let groupingImageUrl;
-        if (currentEpoch === '5' || currentEpoch === '10' || currentEpoch === '20' || currentEpoch === '40' || currentEpoch === '60' || currentEpoch === '80' || currentEpoch === '100' || currentEpoch === '150') {
-            // For epochs 5, 10, 20, 40, 60, 80, 100, and 150, use the epoch-specific segmentation images
-            groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
-        } else if (parseInt(currentEpoch) > 150) {
-            // For epochs > 150 (like epoch 200), use epoch 150 segmentation images with the selected datetime
-            groupingImageUrl = `/static/images/attention/epoch150/segmentation_output_epoch150_${currentDatapoint}.png`;
-        } else {
-            // For all other epochs (< 5), use the default grouping image
-            groupingImageUrl = '/static/images/attention/grouping.png';
-        }
+    // For all epochs up to 200, load images from their respective folders
+    let groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
         
         console.log('Loading grouping image from:', groupingImageUrl);
         
