@@ -57,9 +57,12 @@
 {% block scripts %}
     <script>
         // Configure Titiler base and COG source
-        // Works with local docker mount: -v "$PWD/static/images/copernicus-embed:/data"
-        window.TITILER_BASE = 'http://localhost:8000';
-        window.COG_LOCAL_PATH_PREFIX = '/data';
+        // // Works with local docker mount: -v "$PWD/static/images/copernicus-embed:/data"
+        // window.TITILER_BASE = 'http://localhost:8000';
+        // window.COG_LOCAL_PATH_PREFIX = '/data';
+        // // Works with public Titiler instance and COGs hosted on GitHub
+        window.TITILER_BASE = 'https://titiler.xyz';
+        window.COG_LOCAL_PATH_PREFIX = 'https://raw.githubusercontent.com/wangyi111/thinkingearth_prototype/map2d/static/images/copernicus-embed';
     </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/map2d.js') }}"></script>
