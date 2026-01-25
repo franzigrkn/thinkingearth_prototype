@@ -32,13 +32,33 @@ const groupingError = document.getElementById('grouping-error');
 // Initialize the visualization controls
 function initializeVisualizationControls() {
     console.log('Initializing visualization controls...');
-    
-    // Debug: Check if all DOM elements are found
-    console.log('DOM elements check:');
-    console.log('predictionImage:', predictionImage);
-    console.log('groundTruthImage:', groundTruthImage);
-    console.log('predictionError:', predictionError);
-    console.log('groundTruthError:', groundTruthError);
+    const requiredElements = [
+        datapointSelect,
+        variableSelect,
+        epochSelect,
+        loadButton,
+        resetButton,
+        loadingSpinner,
+        placeholderMessage,
+        imageContainer,
+        predictionImage,
+        groundTruthImage,
+        predictionError,
+        groundTruthError,
+        groupingLoadingSpinner,
+        groupingPlaceholderMessage,
+        groupingImageContainer,
+        groupingImage,
+        groupingError,
+        datapointName,
+        variableName,
+        epochName
+    ];
+
+    if (requiredElements.some((el) => !el)) {
+        console.log('Visualization controls not present on this page. Skipping initialization.');
+        return;
+    }
     
     // Add event listeners
     datapointSelect.addEventListener('change', handleDatapointChange);
@@ -46,6 +66,23 @@ function initializeVisualizationControls() {
     epochSelect.addEventListener('change', handleEpochChange);
     loadButton.addEventListener('click', loadVisualization);
     resetButton.addEventListener('click', resetControls);
+
+    // Add keyboard shortcuts only when controls exist
+    document.addEventListener('keydown', function(event) {
+        // Ctrl/Cmd + Enter to load visualization
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            if (!loadButton.disabled) {
+                loadVisualization();
+            }
+        }
+
+        // Escape to reset
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            resetControls();
+        }
+    });
     
     // Initialize button state
     updateLoadButtonState();
@@ -346,23 +383,6 @@ function showNotification(message, type = 'info') {
         notification.className = 'notification';
     }, 3000);
 }
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(event) {
-    // Ctrl/Cmd + Enter to load visualization
-    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        if (!loadButton.disabled) {
-            loadVisualization();
-        }
-    }
-    
-    // Escape to reset
-    if (event.key === 'Escape') {
-        event.preventDefault();
-        resetControls();
-    }
-});
 
 // Add CSS for notifications
 const notificationCSS = `

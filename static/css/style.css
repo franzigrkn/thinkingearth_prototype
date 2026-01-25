@@ -103,6 +103,227 @@ body {
     gap: 0.5rem;
 }
 
+/* Map2D page */
+.map-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.map-hero {
+    background: linear-gradient(120deg, rgba(74, 155, 142, 0.15), rgba(45, 90, 82, 0.15));
+    border: 1px solid rgba(74, 155, 142, 0.2);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    color: #1f2937;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.map-hero-text {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.map-hero-text .eyebrow {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #2d5a52;
+    font-size: 0.85rem;
+}
+
+.map-hero-text h2 {
+    font-size: 2rem;
+    color: #1f2937;
+    margin: 0;
+}
+
+.map-hero-text .lede {
+    color: #4a5568;
+    font-size: 1rem;
+}
+
+.map-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(74, 155, 142, 0.12);
+    color: #2d5a52;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.map-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.map-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(90deg, rgba(74, 155, 142, 0.08), rgba(45, 90, 82, 0.08));
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.map-card-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    color: #2d5a52;
+    font-size: 1.1rem;
+}
+
+.map-card-title i {
+    color: #4a9b8e;
+}
+
+.map-card-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.map-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.map2d-canvas {
+    width: 100%;
+    height: 520px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8);
+}
+
+.map-reset-btn {
+    background: #4a9b8e;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(74, 155, 142, 0.3);
+    transition: all 0.2s ease;
+}
+
+.map-reset-btn:hover {
+    background: #2d5a52;
+    transform: translateY(-1px);
+}
+
+.map-variable-select {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.4rem;
+    background: white;
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.map-variable-select:hover {
+    border-color: #4a9b8e;
+    box-shadow: 0 0 0 2px rgba(74, 155, 142, 0.15);
+}
+
+.map-variable-select:focus {
+    outline: none;
+    border-color: #4a9b8e;
+    box-shadow: 0 0 0 3px rgba(74, 155, 142, 0.2);
+}
+
+.opacity-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(74, 155, 142, 0.08);
+    border-radius: 0.4rem;
+}
+
+.opacity-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #2d5a52;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.opacity-label i {
+    color: #4a9b8e;
+}
+
+.opacity-slider {
+    width: 80px;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, transparent 0%, #4a9b8e 100%);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4a9b8e;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.opacity-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4a9b8e;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.map-hint {
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.map-hint i {
+    color: #4a9b8e;
+}
+
 .section-title i {
     color: #7cb342;
 }

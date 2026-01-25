@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+
+{% block title %}Map2D Explorer - Earth as a Graph{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="map-page">
+    <div class="map-hero">
+        <div class="map-hero-text">
+            <p class="eyebrow">Interactive Geography</p>
+            <h2>Map2D Explorer</h2>
+            <p class="lede">Pan, zoom, and drop markers on an interactive 2D map of the Earth.</p>
+            <div class="supported-data">
+                <p style="font-weight: 600; margin: 0 0 0.5rem 0; color: #4a5568;">Supported data:</p>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: #4a5568;">
+                    <li><input type="checkbox" checked disabled style="cursor: default; margin-right: 0.5rem; accent-color: #4a9b8e;"> Earth embedding (<a href="https://github.com/zhu-xlab/Copernicus-FM/tree/main/Copernicus-Embed-025deg" target="_blank" style="color: #4a9b8e; text-decoration: none; font-weight: 500;">Copernicus-Embed</a>)</li>
+                    <li><input type="checkbox" disabled style="cursor: default; margin-right: 0.5rem; accent-color: #4a9b8e;"> Weather forecasting</li>
+                </ul>
+            </div>
+            <!-- <div class="map-actions">
+                <a class="btn btn-primary" href="#map-panel"><i class="fas fa-map"></i> Open Map</a>
+                <span class="pill">Mouse + Touch friendly</span>
+            </div> -->
+        </div>
+    </div>
+
+    <div id="map-panel" class="map-card">
+        <div class="map-card-header">
+            <div class="map-card-title"><i class="fas fa-location-arrow"></i><span>Interactive 2D Map</span></div>
+            <div class="map-card-actions">
+                <select id="variable-selector" class="map-variable-select">
+                    <option value="dim-1" selected>Dimension 1</option>
+                    <option value="dim-2">Dimension 2</option>
+                    <option value="dim-3">Dimension 3</option>
+                </select>
+                <div class="opacity-control">
+                    <label for="opacity-slider" class="opacity-label">
+                        <i class="fas fa-adjust"></i>
+                        <span id="opacity-value">80</span>%
+                    </label>
+                    <input type="range" id="opacity-slider" min="0" max="100" value="80" class="opacity-slider">
+                </div>
+                <span class="pill">Leaflet · OSM</span>
+            </div>
+        </div>
+        <div class="map-card-body">
+            <div id="map2d" class="map2d-canvas"></div>
+            <div class="map-hint"><i class="fas fa-hand-pointer"></i>Drag to pan, scroll or pinch to zoom, click to drop a marker.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Configure Titiler base and COG source
+        // // Works with local docker mount: -v "$PWD/static/images/copernicus-embed:/data"
+        // window.TITILER_BASE = 'http://localhost:8000';
+        // window.COG_LOCAL_PATH_PREFIX = '/data';
+        // // Works with public Titiler instance and COGs hosted on GitHub
+        window.TITILER_BASE = 'https://titiler.xyz';
+        window.COG_LOCAL_PATH_PREFIX = 'https://raw.githubusercontent.com/wangyi111/thinkingearth_prototype/map2d/static/images/copernicus-embed';
+    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/map2d.js') }}"></script>
+{% endblock %}

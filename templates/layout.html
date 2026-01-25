@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
@@ -21,6 +22,7 @@
             </div>
             <nav class="nav">
                 <a href="/" class="nav-link">Dashboard</a>
+                <a href="/map2d" class="nav-link">Map2D</a>
                 <a href="/about" class="nav-link">About</a>
             </nav>
         </div>

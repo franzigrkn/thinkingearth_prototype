@@ -55,6 +55,11 @@ def about():
     """About page with project information"""
     return render_template('about.html')
 
+@app.route('/map2d')
+def map2d():
+    """Interactive 2D map page"""
+    return render_template('map2d.html')
+
 @app.route('/api/image/<datapoint>/<variable>/<epoch>')
 def get_prediction_image(datapoint, variable, epoch):
     """API endpoint to serve prediction images based on datapoint, variable, and epoch"""
