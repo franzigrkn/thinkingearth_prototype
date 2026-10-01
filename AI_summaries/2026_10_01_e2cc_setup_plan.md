@@ -2,48 +2,47 @@
 
 ## Objective
 
-Build a browser-accessible NVIDIA Earth-2 Command Center (E2CC) viewer for precomputed global model predictions. E2CC performs GPU rendering and is streamed to reviewers through WebRTC; no model inference is included.
+Build a browser-accessible NVIDIA Earth-2 Command Center (E2CC) viewer for precomputed global predictions. E2CC handles GPU rendering and streams to reviewers through WebRTC; no model inference is included.
 
-## 1. Prepare the development workstation
+## Workstation schedule
 
-- Use a company workstation with Ubuntu 22.04, preferably an RTX GPU with 48 GB VRAM, 32 CPU cores, 64 GB RAM, and at least 128 GB NVMe storage.
-- Install a compatible NVIDIA driver, Git LFS, Docker, NVIDIA Container Toolkit, Python 3.12, and `uv`.
-- Clone NVIDIA's Earth-2 Weather Analytics repository separately from this Flask repository.
+- **2026-10-02 to 2026-10-08:** RTX PRO 6000 Blackwell Server Edition.
+- **From 2026-10-11:** RTX 6000 Ada.
+- Both are supported choices for this work. The move should be low risk if the Ada installation is rebuilt from source and only source code, configuration, and data are transferred.
 
-## 2. Validate E2CC
+## Completed
 
-- Build and launch the unmodified E2CC reference application.
-- Confirm that the globe renders correctly and the workstation has sufficient GPU memory.
+- Inspected `predictions_2018.h5`: three specific-humidity channels (`q850`, `q925`, `q1000`) on a global 0.25-degree ERA5 grid.
+- Added `scripts/export_e2cc.py` and exporter documentation on the pushed `e2cc` branch.
+- Generated and validated seven `q850` prediction/reference pairs plus E2CC metadata and a provenance manifest.
+- Lead time 0 is currently a temporary model reference, not ERA5 ground truth.
 
-## 3. Add the first prediction
+## Blackwell workstation: 2026-10-02 to 2026-10-08
 
-- Export one raw 0.25° global temperature prediction as a clean equirectangular texture without titles, coastlines, grids, or legends.
-- Create E2CC JSON metadata describing its projection, timestamp, units, color range, and colormap.
-- Load it into E2CC and verify orientation, longitude wrapping, and latitude placement.
+1. Clone the `e2cc` branch and transfer or regenerate the ignored HDF5/export assets.
+2. Verify Ubuntu 22.04, driver `>=580.105`, CUDA 13.0, GPU allocation, Docker GPU access, Git LFS, Python 3.12, and `uv`.
+3. Clone NVIDIA's `earth2-weather-analytics` repository separately and run its setup.
+4. Launch the unmodified E2CC application.
+5. Import `q850.e2cc.json` and verify orientation, wrapping, timeline, layer toggles, and colormap behavior.
+6. Record fixes, exact commits, and environment details; commit and push all portable changes before the lease ends.
 
-## 4. Build the initial viewer
+## Ada workstation: from 2026-10-11
 
-- Add selected timestamps from 2018 and expose them through the E2CC timeline.
-- Add all required climate variables.
-- Provide prediction, ground-truth, and error layers with consistent variable-specific color ranges.
-- Keep textures and metadata separate from the original scientific arrays.
+1. Start from clean clones at the recorded commits.
+2. Transfer the raw HDF5/generated exports or regenerate them and compare the manifest checksums.
+3. Rerun NVIDIA setup; do not reuse Blackwell `_build` output, virtual environments, shader caches, or architecture-specific CUDA binaries.
+4. Repeat Docker GPU, E2CC launch, and `q850` visual checks.
+5. Continue with `q925`, `q1000`, additional variables/timestamps, WebRTC, and public deployment.
 
-## 5. Add browser access
+## Reviewer deployment
 
-- Enable E2CC WebRTC streaming.
-- Test access from a browser on the workstation and then from another machine on the company network.
-- Keep the initial deployment to one independent session on one GPU.
-
-## 6. Deploy for reviewers
-
-- Package the validated E2CC application for a public GPU host or an approved company-hosted server.
+- Begin with one GPU-backed interactive session.
 - Configure HTTPS, authentication, session cleanup, and WebRTC/TURN networking.
-- Link or embed the streaming client in the existing Flask website.
-- Add scalable multi-session infrastructure only if concurrent reviewer access is required.
+- Link or embed the streaming client from the existing Flask website.
+- Add multiple independent sessions only if concurrent reviewer access is required.
 
-## Out of scope for the first version
+## First-version exclusions
 
 - Live inference
-- Data Federation Mesh
-- Earth2Studio runtime
+- Data Federation Mesh and Earth2Studio workflows beyond reference-app startup requirements
 - Multi-GPU scaling
