@@ -20,7 +20,7 @@ The current working configuration must be made portable before moving to the new
 
 ### 1. Package the local E2CC changes
 
-**Status: packaged and validated locally on 2026-10-06; the new overlay files still need to be committed and pushed.**
+**Status: completed on 2026-10-06. The overlay was packaged, validated, committed, and pushed in project commit `0bac26c`.**
 
 - The upstream E2CC base commit is recorded as:
   - `d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4`
@@ -38,10 +38,10 @@ The portable changes currently include:
 
 ### 2. Commit the project changes
 
-**Status: the existing exporter, documentation, and summary changes were committed and pushed as `7e4ef0f`. The newly added E2CC overlay package requires one small follow-up commit and push.**
+**Status: completed. The exporter, documentation, and earlier summary changes were committed and pushed as `7e4ef0f`; the E2CC overlay package and application helper were committed and pushed as `0bac26c`.**
 
-- Review the new `patches/e2cc/` package and `scripts/setup_e2cc.sh` helper.
-- Commit and push those newly added files on the project `e2cc` branch.
+- The project `e2cc` branch is synchronized with `origin/e2cc` at `0bac26c`.
+- The portable E2CC patch package is now stored durably in the project repository.
 - Do not commit generated HDF5 data, JPEG exports, build products, environments, or caches.
 
 ### 3. Preserve the ignored data separately
@@ -138,8 +138,8 @@ The migration is complete when the base satellite and all three metadata exports
 
 ## Recommended execution order
 
-1. Package the external E2CC changes.
-2. Review, validate, commit, and push the project changes.
+1. Package the external E2CC changes. **Completed in `0bac26c`.**
+2. Review, validate, commit, and push the project changes. **Completed through `0bac26c`.**
 3. Copy and verify the ignored HDF5 and E2CC export data.
 4. Rebuild and validate E2CC on the new workstation.
 5. Customize the viewer and scientific comparison layers.
