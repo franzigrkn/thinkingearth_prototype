@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 """Export global HDF5 forecast fields as E2CC image-sequence features.
 
-The source HDF5 file is never modified. Output fields are converted to
-lossless, 8-bit grayscale PNG textures. Physical units and normalization
-details are retained in a JSON manifest alongside E2CC feature metadata.
+The source HDF5 file is never modified. Output fields are converted to 8-bit
+grayscale JPEG textures supported by E2CC's timestamped-sequence decoder.
+Physical units and normalization details are retained in a JSON manifest
+alongside E2CC feature metadata.
 """
 
 from __future__ import annotations
 
 import argparse
-import binascii
 import hashlib
 import json
-import struct
-import zlib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import h5py
 import numpy as np
+from PIL import Image
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,34 +50,32 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--colormap", default="viridis")
     parser.add_argument("--playback-duration", type=float, default=7.0)
+    parser.add_argument(
+        "--jpeg-quality",
+        type=int,
+        default=99,
+        help="JPEG quality from 1 to 100 (default: 99, matching E2CC)",
+    )
     return parser.parse_args()
 
 
-def png_chunk(kind: bytes, payload: bytes) -> bytes:
-    body = kind + payload
-    return (
-        struct.pack(">I", len(payload))
-        + body
-        + struct.pack(">I", binascii.crc32(body) & 0xFFFFFFFF)
-    )
-
-
-def write_gray_png(path: Path, pixels: np.ndarray) -> None:
-    """Write a 2-D uint8 array as a standards-compliant grayscale PNG."""
+def write_grayscale_jpeg(path: Path, pixels: np.ndarray, quality: int) -> None:
+    """Write a 2-D uint8 field like E2CC's RenderUint8ToImages operation."""
     if pixels.ndim != 2 or pixels.dtype != np.uint8:
-        raise ValueError("PNG pixels must be a two-dimensional uint8 array")
+        raise ValueError("JPEG pixels must be a two-dimensional uint8 array")
+    if quality < 1 or quality > 100:
+        raise ValueError("JPEG quality must be between 1 and 100")
 
-    height, width = pixels.shape
-    scanlines = b"".join(b"\x00" + row.tobytes() for row in pixels)
-    header = struct.pack(">IIBBBBB", width, height, 8, 0, 0, 0, 0)
-    encoded = (
-        b"\x89PNG\r\n\x1a\n"
-        + png_chunk(b"IHDR", header)
-        + png_chunk(b"IDAT", zlib.compress(scanlines, level=9))
-        + png_chunk(b"IEND", b"")
-    )
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(encoded)
+    # Keep this deliberately close to NVIDIA's RenderUint8ToImages encoder:
+    # a Pillow ``L`` image, baseline JPEG, and only an explicit quality value.
+    # Extra RGB channels, optimized Huffman tables, and 4:4:4 sampling are not
+    # needed for scalar fields and can exercise a different nvJPEG path.
+    Image.fromarray(pixels).save(
+        path,
+        format="JPEG",
+        quality=quality,
+    )
 
 
 def iso_utc(unix_seconds: float) -> str:
@@ -158,7 +155,7 @@ def image_feature(
     *,
     name: str,
     active: bool,
-    sources: dict[str, list[str]],
+    sources: dict[str, str],
     colormap: str,
     metadata: dict[str, Any],
 ) -> dict[str, Any]:
@@ -189,6 +186,8 @@ def export(args: argparse.Namespace) -> None:
     output_dir = args.output.resolve()
     if not input_path.is_file():
         raise FileNotFoundError(input_path)
+    if args.jpeg_quality < 1 or args.jpeg_quality > 100:
+        raise ValueError("JPEG quality must be between 1 and 100")
 
     with h5py.File(input_path, "r") as source:
         required = {"fields", "timestamp", "lead_time", "channel", "lat", "lon"}
@@ -223,8 +222,8 @@ def export(args: argparse.Namespace) -> None:
         prediction_lead = float(lead_times[args.prediction_lead_index])
         reference_lead = float(lead_times[args.reference_lead_index])
 
-        prediction_sources: dict[str, list[str]] = {}
-        reference_sources: dict[str, list[str]] = {}
+        prediction_sources: dict[str, str] = {}
+        reference_sources: dict[str, str] = {}
         frames: list[dict[str, Any]] = []
 
         for prediction_time_index, prediction_timestamp in enumerate(timestamps):
@@ -236,9 +235,9 @@ def export(args: argparse.Namespace) -> None:
 
             valid_time = iso_utc(valid_timestamp)
             stamp = filename_timestamp(valid_timestamp)
-            prediction_relative = Path("textures") / "prediction" / f"{stamp}.png"
+            prediction_relative = Path("textures") / "prediction" / f"{stamp}.jpg"
             reference_relative = (
-                Path("textures") / "temporary_reference" / f"{stamp}.png"
+                Path("textures") / "temporary_reference" / f"{stamp}.jpg"
             )
             prediction_path = output_dir / prediction_relative
             reference_path = output_dir / reference_relative
@@ -274,11 +273,16 @@ def export(args: argparse.Namespace) -> None:
                 args.display_min,
                 args.display_max,
             )
-            write_gray_png(prediction_path, prediction_pixels)
-            write_gray_png(reference_path, reference_pixels)
+            write_grayscale_jpeg(
+                prediction_path, prediction_pixels, args.jpeg_quality
+            )
+            write_grayscale_jpeg(reference_path, reference_pixels, args.jpeg_quality)
 
-            prediction_sources[valid_time] = ["./" + prediction_relative.as_posix()]
-            reference_sources[valid_time] = ["./" + reference_relative.as_posix()]
+            # A non-mosaic timestamped sequence expects one path string per
+            # timestamp. Lists are reserved for tiled projections such as
+            # latlong_<columns>_<rows>, diamond, and HPX.
+            prediction_sources[valid_time] = "./" + prediction_relative.as_posix()
+            reference_sources[valid_time] = "./" + reference_relative.as_posix()
             frames.append(
                 {
                     "valid_time_utc": valid_time,
@@ -318,6 +322,10 @@ def export(args: argparse.Namespace) -> None:
         "grid_resolution_degrees": 0.25,
         "texture_longitude_range": [-180.0, 179.75],
         "texture_latitude_order": "north_to_south",
+        "texture_format": "JPEG grayscale 8-bit",
+        "jpeg_quality": args.jpeg_quality,
+        "jpeg_mode": "grayscale (L)",
+        "jpeg_encoder": "baseline Pillow defaults, matching E2CC RenderUint8ToImages",
         "ensemble_index": args.ensemble_index,
     }
     e2cc_metadata = {
