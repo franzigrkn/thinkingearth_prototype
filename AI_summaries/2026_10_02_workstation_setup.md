@@ -10,7 +10,7 @@ Pinned NVIDIA release 1.1.0:
 d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4
 ~~~
 
-At the time this note was written, setup.sh was running again after all known prerequisites had been corrected. Complete the validation section before treating the installation as finished.
+Setup completed after the prerequisites below were corrected. E2CC was launched successfully, completed its first-run shader compilation, and rendered the default globe. The original PNG timestamp sequences were rejected by E2CC's JPEG-only sequence decoder, so all three project exports were regenerated as baseline grayscale JPEGs. Live validation is now complete: `q850`, `q925`, and `q1000` all load and run through their timelines correctly when RealVNC uses **Picture quality: High** and **PreferredEncoding: ZRLE**.
 
 ## Verified first-workstation environment
 
@@ -121,6 +121,19 @@ The full-disk failure also left a corrupt nvidia-cuda-nvrtc-cu12 extraction with
 UV_CACHE_DIR="$E2CC_WORKDIR/.uv-cache" \
 uv cache clean nvidia-cuda-nvrtc-cu12
 ~~~
+
+The small home quota later also filled while Kit wrote its Omniverse shader
+cache. Preserve the failed cache only for diagnostics and put the active
+Omniverse cache on local storage. On the first workstation,
+`/home/fgerken/.cache/ov` was replaced by a symlink to:
+
+~~~text
+/var/tmp/fgerken/e2cc/ov-cache-kit10905-clean
+~~~
+
+This cache relocation prevents another home-quota failure. It did not resolve
+the apparent posterized display; that symptom was ultimately caused by RealVNC
+automatic picture quality.
 
 ## 5. Install the matching CUDA 12.8 build toolchain
 
@@ -345,6 +358,34 @@ Then choose Add features from metadata file and open the q850 metadata from the 
 check_data/e2cc_exports/q850/q850.e2cc.json
 ~~~
 
+The first import attempt failed with `TypeError: argument should be a str or an os.PathLike object ... not 'list'`. The exporter had emitted a one-item path list for every timestamp. E2CC release 1.1.0 expects a path string for each timestamp in a non-mosaic `latlong` sequence. `scripts/export_e2cc.py` and the current metadata were corrected, and the file loaded successfully on 2026-10-05.
+
+The first generated frames were PNGs. Their metadata and timelines loaded, but
+the Kit log reported `Trying to load a non-jpeg through the jpeg decoder`.
+Release 1.1.0's timestamped sequence only loads JPEG paths. The exporter was
+corrected and all three channels now use `1440 x 721`, quality-99, baseline
+grayscale JPEGs with string paths.
+
+E2CC was also repinned and rebuilt from Kit 109.0.2 to Kit 109.0.5 because
+NVIDIA requires at least 109.0.5 for the R595 Blackwell path. Keep that upgrade
+as a valid compatibility correction, but do not describe it as the fix for the
+later posterized display. The same apparent corruption affected the built-in
+Base Satellite and timeline text, could recover while E2CC was untouched, and
+was triggered by large redraws such as timeline playback or toggling the Sun.
+E2CC logged no matching renderer or texture error, GPU memory remained ample,
+and the GPU reported no ECC or Xid fault.
+
+The final cause was RealVNC's automatic adaptive picture quality. In the
+RealVNC connection properties, set:
+
+- **Picture quality:** High
+- **PreferredEncoding:** ZRLE
+
+With those settings the built-in globe remains stable and `q850`, `q925`, and
+`q1000` all load and run correctly through their timelines. The temporary
+Dynamic Texture synchronization experiment was reverted to the stock
+`dt.sync = False` setting.
+
 Verify orientation, longitude wrapping, all seven timestamps, prediction/reference toggles, colormap behavior, and animation.
 
 ## 12. Handoff to the RTX 6000 Ada workstation
@@ -357,6 +398,7 @@ Preserve:
 - Any additional package or error discovered after this note
 - The ignored predictions_2018.h5 and check_data/e2cc_exports assets
 - Export manifests and checksums
+- The required RealVNC High-quality/ZRLE connection settings
 
 Do not transfer _build, .venv, .venv-notebook, the bootstrap environment, CUDA-extension artifacts, shader caches, or the uv cache. Create a clean local-NVMe directory, clone the pinned sources, install the matching prerequisites, and rebuild.
 

@@ -33,7 +33,7 @@ git switch e2cc
 git pull --ff-only
 ```
 
-Confirm that `git status` reports branch `e2cc`. The source HDF5 and generated E2CC exports are ignored by Git. Transfer `check_data/predictions_2018.h5` and `check_data/e2cc_exports/q850/` separately, or transfer the HDF5 file and regenerate the export.
+Confirm that `git status` reports branch `e2cc`. The source HDF5 and generated E2CC exports are ignored by Git. Transfer `check_data/predictions_2018.h5` and `check_data/e2cc_exports/` separately, or transfer the HDF5 file and regenerate all three exports.
 
 ## 1. Verify the machine
 
@@ -84,6 +84,11 @@ From the NVIDIA repository root:
 
 The first launch may take several minutes while shaders compile. Confirm that the application opens and the interactive globe renders before adding project data.
 
+When validating through RealVNC, set **Picture quality** to **High** and
+**PreferredEncoding** to **ZRLE**. Automatic picture quality caused the entire
+remote view—including the Base Satellite and timeline text—to become
+posterized during large redraws even though E2CC continued rendering correctly.
+
 ## 5. Test the first project layer
 
 In E2CC, select **Add features from metadata file** and open:
@@ -91,6 +96,10 @@ In E2CC, select **Add features from metadata file** and open:
 ```text
 check_data/e2cc_exports/q850/q850.e2cc.json
 ```
+
+Status on 2026-10-05: the metadata file loads successfully. The original import failure was caused by one-item path lists in timestamped `sources`; release 1.1.0 expects one path string per timestamp for a non-mosaic `latlong` sequence. The exporter and generated metadata have been corrected.
+
+Correction on 2026-10-06: timestamped textures must also be JPEG files. The release 1.1.0 `TimestampedSequence` rejects non-JPEG paths before calling the dynamic-texture loader. The original PNG layers therefore did not load despite a working timeline. The regenerated `.jpg` metadata for `q850`, `q925`, and `q1000` has now been validated successfully in live playback. The later sector-shaped artifacts were RealVNC compression artifacts and disappeared with High quality and ZRLE.
 
 Verify:
 
@@ -114,7 +123,7 @@ Record startup, extension, texture, and visual-orientation problems before chang
 - Clone or update both repositories to the recorded commits.
 - Repeat Steps 1 and 2, then rerun `./setup.sh`.
 - Transfer or regenerate the project data and verify its manifest.
-- Repeat the E2CC launch and all `q850` visual checks.
+- Repeat the E2CC launch and the `q850`, `q925`, and `q1000` visual checks.
 
 The Ada GPU is explicitly recommended by NVIDIA for this blueprint and meets E2CC's 48 GB VRAM requirement. Expect a clean rebuild and potentially lower headroom than the 96 GB Blackwell machine, but no project-code or data-format changes.
 
