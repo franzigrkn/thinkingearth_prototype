@@ -1,0 +1,66 @@
+diff --git a/earth-2-command-center/deps/kit-sdk.packman.xml b/earth-2-command-center/deps/kit-sdk.packman.xml
+index b2df3be708d2a94f2208c4ce56a9e67f4807cbf1..32ed82bab75905c1324ad494e0b5f205b6691ed4 100644
+--- a/earth-2-command-center/deps/kit-sdk.packman.xml
++++ b/earth-2-command-center/deps/kit-sdk.packman.xml
+@@ -1,5 +1,5 @@
+   <project toolsVersion="5.0">
+   <dependency name="kit_sdk_${config}" linkPath="../_build/${platform_target}/${config}/kit" tags="${config} non-redist">
+-      <package name="kit-kernel" version="109.0.2+production.256998.bb24931b.gl.${platform_target_abi}.${config}"/>
++      <package name="kit-kernel" version="109.0.5+production.296990.e3b53912.gl.${platform_target_abi}.${config}"/>
+   </dependency>
+ </project>
+diff --git a/earth-2-command-center/repo.toml b/earth-2-command-center/repo.toml
+index 8dff4ec7690632c751645ec76952c157ee04e910..946e99fd91744243d9b38316c4c02289acdb24cc 100644
+--- a/earth-2-command-center/repo.toml
++++ b/earth-2-command-center/repo.toml
+@@ -65,8 +65,8 @@ publish_pip_cache = false
+ kit_path = "${root}/_build/${platform}/${config}/kit/kit${exe_ext}"
+ 
+ registries = [
+-    { name = "kit/default", url = "omniverse://kit-extensions.ov.nvidia.com/exts/kit/default" },
+-    { name = "kit/sdk", url = "omniverse://kit-extensions.ov.nvidia.com/exts/kit/sdk/${kit_version_short}/${kit_git_hash}" },
++    { name = "kit/default", url = "https://ovextensionsprod.blob.core.windows.net/exts/kit/prod/109/shared" },
++    { name = "kit/sdk", url = "https://ovextensionsprod.blob.core.windows.net/exts/kit/prod/sdk/${kit_version_short}/${kit_git_hash}" },
+     #{ name = "kit/community", url = "https://dw290v42wisod.cloudfront.net/exts/kit/community" },
+ ]
+ # Apps to run and precache
+diff --git a/earth-2-command-center/source/apps/omni.earth_2_command_center.app.kit b/earth-2-command-center/source/apps/omni.earth_2_command_center.app.kit
+index 69d7fd812095a83cf63a1d5aa157ec7f231e59b3..17c5af038d66fa2d9201a06fc654ff4b46c86847 100644
+--- a/earth-2-command-center/source/apps/omni.earth_2_command_center.app.kit
++++ b/earth-2-command-center/source/apps/omni.earth_2_command_center.app.kit
+@@ -16,7 +16,7 @@ fullscreen = false
+ # BEGIN GENERATED PART (Remove from 'BEGIN' to 'END' to regenerate)
+ ########################################################################################################################
+ 
+-# Kit SDK Version: 109.0.2+production.256998.bb24931b.gl
++# Kit SDK Version: 109.0.5+production.296990.e3b53912.gl
+ 
+ # Version lock for all dependencies:
+ [settings.app.exts]
+diff --git a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_dev.kit b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_dev.kit
+index 0b840a0d5f04e08155dce37fb32a62169d9fa4f9..cbec4a378adfd4b57902f1c98ddf9d1523521377 100644
+--- a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_dev.kit
++++ b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_dev.kit
+@@ -16,7 +16,7 @@ title = "Earth-2 Command Center Dev"
+ # BEGIN GENERATED PART (Remove from 'BEGIN' to 'END' to regenerate)
+ ########################################################################################################################
+ 
+-# Kit SDK Version: 109.0.2+production.256998.bb24931b.gl
++# Kit SDK Version: 109.0.5+production.296990.e3b53912.gl
+ 
+ # Version lock for all dependencies:
+ [settings.app.exts]
+diff --git a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
+index 4a9ea067293a565f3db52fa5f489b9b3076e437c..73224d6004753495f6243cc519878c2b9133b2c0 100644
+--- a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
++++ b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
+@@ -60,7 +60,7 @@ outputStreamLevel = "info"
+ # BEGIN GENERATED PART (Remove from 'BEGIN' to 'END' to regenerate)
+ ########################################################################################################################
+ 
+-# Kit SDK Version: 109.0.2+production.256998.bb24931b.gl
++# Kit SDK Version: 109.0.5+production.296990.e3b53912.gl
+ 
+ # Exact Version dependencies:
+ # 	omni.kit.streamsdk.plugins-6.0.0
+

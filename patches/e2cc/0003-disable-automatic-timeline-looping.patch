@@ -1,0 +1,30 @@
+diff --git a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.globe_view/omni/earth_2_command_center/app/globe_view/timeline/minibar.py b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.globe_view/omni/earth_2_command_center/app/globe_view/timeline/minibar.py
+index 0c14a7592c875f44d5a6227894f82c078d220aba..d6a03f21211ee44f585c84c94e13b697b0d97cc3 100644
+--- a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.globe_view/omni/earth_2_command_center/app/globe_view/timeline/minibar.py
++++ b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.globe_view/omni/earth_2_command_center/app/globe_view/timeline/minibar.py
+@@ -35,7 +35,9 @@ class TimelineMinibar:
+         self._slider_height = 42 # defined in the specs for E2 demo
+         self._time_manager = core.get_state().get_time_manager()
+         self._timeline = omni.timeline.get_timeline_interface()
+-        self._timeline.set_looping(True)
++        # Holding the final frame avoids overlapping end/start image loads at
++        # the wrap boundary. Users can still seek back and replay manually.
++        self._timeline.set_looping(False)
+         self._timeline_subscription = self._time_manager.get_timeline_event_stream().create_subscription_to_pop(self._on_time_event)
+         self._utc_time_subscription = self._time_manager.get_utc_event_stream().create_subscription_to_pop(self._on_utc_event)
+ 
+diff --git a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.test_sequence/omni/earth_2_command_center/app/test_sequence/metadata_sequences.py b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.test_sequence/omni/earth_2_command_center/app/test_sequence/metadata_sequences.py
+index 9a4e84c49b2fc6177cef5229ce3d50e76d3b5992..ee0d5d1c46ed6981d189397cbe24fc2676a03762 100644
+--- a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.test_sequence/omni/earth_2_command_center/app/test_sequence/metadata_sequences.py
++++ b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.test_sequence/omni/earth_2_command_center/app/test_sequence/metadata_sequences.py
+@@ -362,6 +362,9 @@ def add_from_meta_json(ext, json_path, overrides={}, depth=0, options=None):
+ 
+         # update timeline
+         time_manager.set_time_range(start_time, end_time, utc_time, playback_duration)
++        # Metadata image sequences must hold their final frame. Apply this
++        # after configuring the range because stage updates can reset looping.
++        time_manager.get_timeline().set_looping(False)
+ 
+         # play timeline if requested
+         if 'play' in options:
+

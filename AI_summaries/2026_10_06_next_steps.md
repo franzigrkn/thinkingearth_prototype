@@ -20,12 +20,14 @@ The current working configuration must be made portable before moving to the new
 
 ### 1. Package the local E2CC changes
 
-- Record the upstream E2CC base commit:
+**Status: packaged and validated locally on 2026-10-06; the new overlay files still need to be committed and pushed.**
+
+- The upstream E2CC base commit is recorded as:
   - `d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4`
-- Review the eight modified files in the local E2CC checkout.
-- Export the modifications as a patch stored in this project, or commit them to a dedicated E2CC fork/branch.
-- Include short application instructions and the expected E2CC base commit.
-- Preserve the changes before removing the checkout under `/var/tmp/fgerken/e2cc`.
+- The eight modified files are preserved as three independently selectable patches under `patches/e2cc/`.
+- `patches/e2cc/README.md` documents the upstream repository, patch purpose, application order, and new-workstation recommendation.
+- `scripts/setup_e2cc.sh` verifies the base commit, clean worktree, and SHA-256 checksums before checking or applying selected patches.
+- All three patches were applied to a fresh local clone and the result matched the current E2CC working diff exactly.
 
 The portable changes currently include:
 
@@ -36,10 +38,10 @@ The portable changes currently include:
 
 ### 2. Commit the project changes
 
-- Review the changes to the E2CC exporter, export documentation, and project summaries.
-- Run the exporter validation checks once more.
-- Commit the portable changes on the project `e2cc` branch.
-- Push the branch to durable remote storage before the current workstation is retired.
+**Status: the existing exporter, documentation, and summary changes were committed and pushed as `7e4ef0f`. The newly added E2CC overlay package requires one small follow-up commit and push.**
+
+- Review the new `patches/e2cc/` package and `scripts/setup_e2cc.sh` helper.
+- Commit and push those newly added files on the project `e2cc` branch.
 - Do not commit generated HDF5 data, JPEG exports, build products, environments, or caches.
 
 ### 3. Preserve the ignored data separately

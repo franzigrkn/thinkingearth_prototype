@@ -1,0 +1,26 @@
+diff --git a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.core/omni/earth_2_command_center/app/core/timestamped_sequence.py b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.core/omni/earth_2_command_center/app/core/timestamped_sequence.py
+index 05875dda1225f4acd101c26416c44b33743bd564..e30170c81baecb5f46cb1fef1c3a1e38e776461e 100644
+--- a/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.core/omni/earth_2_command_center/app/core/timestamped_sequence.py
++++ b/earth-2-command-center/source/extensions/omni.earth_2_command_center.app.core/omni/earth_2_command_center/app/core/timestamped_sequence.py
+@@ -294,10 +294,17 @@ class TimestampedSequence(GenericTimestampedSequence):
+         self.register_hook(self._on_update)
+ 
+     def _on_update(self, cur_utc_time, target_idx, target_element):
+-        if not is_jpeg_path(target_element[1]):
+-            carb.log_error(f'Trying to load a non-jpeg through the jpeg decoder. Only jpegs are supported for image sequences: {target_element[1]}')
++        path = target_element[1]
++        # UTC updates can occur much more often than the image timestamps. Do
++        # not queue another asynchronous decode while the selected frame is
++        # unchanged.
++        if path == self._cur_path:
++            return
++        if not is_jpeg_path(path):
++            carb.log_error(f'Trying to load a non-jpeg through the jpeg decoder. Only jpegs are supported for image sequences: {path}')
+         else:
+-            self._tex.load_from_url(target_element[1])
++            self._cur_path = path
++            self._tex.load_from_url(path)
+ 
+     @property
+     def target_url(self):
+
