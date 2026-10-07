@@ -55,6 +55,16 @@ def about():
     """About page with project information"""
     return render_template('about.html')
 
+@app.route('/earth2-visualization')
+def earth2_visualization():
+    """Placeholder page for the Earth2 visualization"""
+    return render_template('earth2_visualization.html')
+
+@app.route('/data-download')
+def data_download():
+    """Placeholder page for downloadable project data"""
+    return render_template('data_download.html')
+
 @app.route('/api/image/<datapoint>/<variable>/<epoch>')
 def get_prediction_image(datapoint, variable, epoch):
     """API endpoint to serve prediction images based on datapoint, variable, and epoch"""
