@@ -5,7 +5,8 @@
 Rebuild the validated Earth-2 Command Center (E2CC) prototype from clean
 sources on the RTX 6000 Ada workstation available from 2026-10-11. Restore the
 ignored scientific data from CSS Storage, build NVIDIA Earth-2 Weather
-Analytics locally, and repeat the three-channel acceptance test.
+Analytics locally, recreate the Flask and WebRTC services, and repeat the
+three-channel acceptance test through both RealVNC and the browser stream.
 
 Do not transfer virtual environments, E2CC `_build` output, containers,
 compiled CUDA artifacts, package caches, or shader caches from the Blackwell
@@ -92,6 +93,16 @@ git rev-parse HEAD
 
 The checkout must be on `e2cc` and clean. Record the commit printed by
 `git rev-parse HEAD` in the migration notes.
+
+Confirm that the clone contains the reproducible streaming files:
+
+```bash
+test -x scripts/setup_e2cc.sh
+test -x scripts/run_e2cc_streaming.sh
+test -x scripts/run_flask_streaming.sh
+test -x scripts/install_streaming_services.sh
+test -f deploy/systemd/streaming.env.example
+```
 
 ```bash
 export PROJECT_ROOT="$E2CC_WORKDIR/thinkingearth_prototype"
@@ -241,32 +252,48 @@ git status --short --branch
 The printed commit must be
 `d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4`, and the checkout must be clean.
 
-Validate that the preserved compatibility overlay can be applied, without
-changing the checkout:
+Validate the required browser-streaming overlay without changing the checkout:
 
 ```bash
 cd "$PROJECT_ROOT"
-./scripts/setup_e2cc.sh --check-only --compatibility \
+./scripts/setup_e2cc.sh --check-only --streaming \
   "$E2CC_WORKDIR/earth2-weather-analytics"
 ```
 
 ### Patch policy for the Ada machine
 
-First build and test the clean pinned NVIDIA checkout. The RTX 6000 Ada may not
-need the Blackwell/R595 compatibility changes. If the stock Kit 109.0.2 build
-is unsuitable, or the extension registry fails, check `git status --short` in
-the NVIDIA checkout. If it is still clean, apply the compatibility overlay
-before rebuilding:
+The `--streaming` overlay is required. It enables and precaches the OVC
+application and replaces the legacy StreamSDK configuration with the validated
+Kit WebRTC extensions. Apply it before the first build:
 
 ```bash
 cd "$PROJECT_ROOT"
-./scripts/setup_e2cc.sh --compatibility \
+./scripts/setup_e2cc.sh --streaming \
   "$E2CC_WORKDIR/earth2-weather-analytics"
 ```
 
-If the failed setup changed tracked or untracked source files, make a fresh
-checkout at the pinned commit rather than deleting or resetting files whose
-purpose is unclear, then apply the compatibility overlay to that clean clone.
+This first attempt keeps the stock Kit 109.0.2 configuration because the RTX
+6000 Ada may not need the Blackwell/R595 compatibility changes. If setup or
+extension resolution fails, preserve the failed directory for inspection,
+make a fresh checkout at the pinned commit, and apply both required streaming
+and compatibility overlays before rebuilding:
+
+```bash
+cd "$E2CC_WORKDIR"
+mv earth2-weather-analytics \
+  "earth2-weather-analytics.streaming-only.$(date +%Y%m%d-%H%M%S)"
+git clone https://github.com/NVIDIA-Omniverse-blueprints/earth2-weather-analytics.git
+cd earth2-weather-analytics
+git switch --detach d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4
+git lfs pull
+
+cd "$PROJECT_ROOT"
+./scripts/setup_e2cc.sh --compatibility --streaming \
+  "$E2CC_WORKDIR/earth2-weather-analytics"
+```
+
+Do not try to apply another overlay to the already patched or partially built
+checkout: the helper deliberately requires a clean pinned worktree.
 
 Do not initially apply `--deduplicate-loads` or `--no-loop`. They are optional
 behavior changes and did not fix the RealVNC artifact. Use `--all` only when an
@@ -321,6 +348,14 @@ find earth-2-federation/dist -maxdepth 1 -type f -name '*.whl' -print
 test -x \
   earth-2-command-center/_build/linux-x86_64/release/omni.earth_2_command_center.app.sh \
   && echo "PASS: E2CC build complete"
+
+test -x \
+  earth-2-command-center/_build/linux-x86_64/release/omni.earth_2_command_center.app_ovc.sh \
+  && echo "PASS: E2CC OVC build complete"
+
+cd "$PROJECT_ROOT"
+E2CC_APP_DIR="$E2CC_WORKDIR/earth2-weather-analytics/earth-2-command-center" \
+  ./scripts/run_e2cc_streaming.sh --check-only
 
 docker run --rm --runtime=nvidia --gpus all ubuntu \
   nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
@@ -415,7 +450,147 @@ loader, decoder, or GPU failure.
 Remember that the temporary-reference layer is lead-0 model output, not ERA5
 ground truth.
 
-## 12. Record the completed migration
+## 12. Configure Flask and managed browser streaming
+
+Close the graphical E2CC process after the RealVNC acceptance test. The
+headless browser service is a separate E2CC instance, and running both at once
+unnecessarily consumes GPU memory.
+
+Create a fresh project-local Flask environment from the pinned requirements:
+
+```bash
+cd "$PROJECT_ROOT"
+UV_CACHE_DIR="$E2CC_WORKDIR/.uv-cache" uv venv --python 3.12 .venv
+UV_CACHE_DIR="$E2CC_WORKDIR/.uv-cache" \
+  uv pip install --python .venv/bin/python -r requirements.txt
+./scripts/run_flask_streaming.sh --check-only
+```
+
+Determine which Ada address the Mac can reach directly. Do not automatically
+choose a container, loopback, or management-only interface:
+
+```bash
+hostname -I
+ip -brief address
+```
+
+Copy the versioned environment example and edit the machine-specific values:
+
+```bash
+cd "$PROJECT_ROOT"
+cp deploy/systemd/streaming.env.example deploy/systemd/streaming.env
+chmod 600 deploy/systemd/streaming.env
+${EDITOR:-nano} deploy/systemd/streaming.env
+```
+
+Set the following values for the Ada machine:
+
+| Setting | Ada value |
+| --- | --- |
+| `E2CC_APP_DIR` | `$E2CC_WORKDIR/earth2-weather-analytics/earth-2-command-center` resolved to an absolute path |
+| `E2CC_PUBLIC_IP` | Ada address directly reachable from the Mac |
+| `E2CC_SIGNAL_PORT` | `49100` |
+| `E2CC_MEDIA_PORT` | `47998` |
+| `E2CC_HTTP_PORT` | `8011` |
+| `E2CC_STREAM_URL` | `http://<ADA_ADDRESS>:8011` |
+| `E2CC_STREAM_HTTP_PORT` | `8011` |
+| `E2CC_STREAM_SIGNAL_PORT` | `49100` |
+| `E2CC_STREAM_MEDIA_PORT` | `47998` |
+| `FLASK_BIND` | `0.0.0.0:5000` |
+| `FLASK_WORKERS` | `2` |
+| `FLASK_APP_MODULE` | `app:app` |
+
+The corresponding E2CC and `E2CC_STREAM_*` ports must match. The ignored
+`streaming.env` file is local machine state; do not commit it.
+
+Validate the complete configuration and install the user-level services:
+
+```bash
+cd "$PROJECT_ROOT"
+./scripts/install_streaming_services.sh --check-only
+./scripts/install_streaming_services.sh --start --enable-linger
+```
+
+The installer renders the current repository and config paths into
+`~/.config/systemd/user/`, enables the shared target, configures restart
+policies, and sends logs to the user journal. `--enable-linger` lets the user
+manager start during boot and remain active after logout.
+
+Verify service state, lingering, listeners, and both local HTTP endpoints:
+
+```bash
+systemctl --user is-enabled thinkingearth-streaming.target
+systemctl --user is-active thinkingearth-streaming.target \
+  thinkingearth-e2cc.service thinkingearth-flask.service
+loginctl show-user "$USER" --property=Linger
+
+ss -lntup | grep -E ':(5000|8011|49100|47998)\b'
+curl --fail http://127.0.0.1:5000/api/e2cc/config
+curl --fail http://127.0.0.1:8011/api/stream-config
+```
+
+Expected state is one enabled target, three `active` lines, `Linger=yes`, a
+Flask JSON response containing the Ada viewer URL, and a primary WebRTC stream
+on signaling port 49100. Follow logs with:
+
+```bash
+journalctl --user \
+  -u thinkingearth-e2cc.service \
+  -u thinkingearth-flask.service -f
+```
+
+The Mac must reach these workstation ports directly:
+
+| Port | Protocol | Purpose |
+| --- | --- | --- |
+| `5000` | TCP | ThinkingEarth Flask site |
+| `8011` | TCP | NVIDIA browser client and stream API |
+| `49100` | TCP | WebRTC signaling |
+| `47998` | UDP | WebRTC video and input |
+
+Check `sudo ufw status verbose` and any institutional firewall rules. Open
+only the required paths on the trusted company network or VPN. The current
+prototype is HTTP-only and has no authentication; do not expose it publicly.
+
+## 13. Run the browser-streaming acceptance test
+
+From the Mac, replace `ADA_ADDRESS` and verify the three TCP endpoints:
+
+```bash
+nc -vz ADA_ADDRESS 5000
+nc -vz ADA_ADDRESS 8011
+nc -vz ADA_ADDRESS 49100
+```
+
+Open this URL in Chrome or Edge:
+
+```text
+http://ADA_ADDRESS:5000/earth2
+```
+
+An SSH tunnel can help diagnose the TCP endpoints but cannot carry the UDP
+47998 media path. Successful video and input require direct UDP reachability.
+Only one browser controls this peer-to-peer prototype at a time, so close old
+viewer tabs before reconnecting.
+
+In the streamed, headless E2CC instance:
+
+1. Confirm the globe appears and browser rotation and zoom work.
+2. Load the `q850`, `q925`, and `q1000` metadata paths listed in Section 11.
+3. For each channel, inspect and scrub all seven timestamps.
+4. Verify both prediction and temporary-reference layers.
+5. Close the tab, reconnect, and confirm a new session can take control.
+6. Check the E2CC journal for loader, decoder, GPU, WebRTC, or Xid failures.
+
+Metadata loaded during the RealVNC test is not shared with the headless
+service. Both acceptance paths must therefore load and test the data
+independently.
+
+If workstation policy permits a reboot test, reboot after acceptance, reconnect
+over SSH, and repeat the service-state and endpoint checks from Section 12.
+This confirms the enabled target and lingering behavior on the Ada host.
+
+## 14. Record the completed migration
 
 After acceptance, record:
 
@@ -430,11 +605,18 @@ git status --short
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
 python3 --version
 nvcc --version
+systemctl --user is-enabled thinkingearth-streaming.target
+systemctl --user is-active thinkingearth-streaming.target \
+  thinkingearth-e2cc.service thinkingearth-flask.service
+loginctl show-user "$USER" --property=Linger
+curl --fail http://127.0.0.1:5000/api/e2cc/config
+curl --fail http://127.0.0.1:8011/api/stream-config
 ```
 
 Also record whether the stock NVIDIA checkout or the compatibility overlay was
-used. Do not commit the restored HDF5, generated exports, build products,
-environments, or caches.
+used, whether the browser test worked directly from the Mac, and whether a
+reboot test was completed. Do not commit the local `streaming.env`, restored
+HDF5, generated exports, build products, environments, or caches.
 
 ## Troubleshooting reference
 
@@ -448,6 +630,20 @@ environments, or caches.
 - **No E2CC window:** launch from a terminal inside the RealVNC desktop and
   confirm `DISPLAY` is nonempty.
 - **Grey first launch:** wait for shader compilation and inspect the Kit log.
+- **OVC launcher missing:** confirm `--streaming` was applied before the build;
+  then rebuild from a correctly patched clean checkout.
+- **Service preflight fails:** rerun
+  `./scripts/install_streaming_services.sh --check-only` and fix the first
+  reported path, environment, build, or port mismatch.
+- **Page loads but video does not connect:** close other viewer tabs and verify
+  that the Mac can directly reach UDP 47998; an SSH tunnel is insufficient.
+- **Services stop after logout:** confirm `loginctl show-user "$USER"
+  --property=Linger` reports `Linger=yes`.
+- **Lingering cannot be enabled:** install and start without
+  `--enable-linger`, then ask the workstation administrator to run
+  `loginctl enable-linger "$USER"` before relying on boot-time startup.
+- **Browser reports mixed content:** do not place the current HTTP viewer in an
+  HTTPS page until both endpoints have a coordinated TLS/reverse-proxy setup.
 - **Metadata loads but textures do not:** confirm metadata paths end in `.jpg`;
   release 1.1.0 rejects PNG timestamp sequences.
 - **Wedges, bands, black sectors, or blurry UI:** if the Base Satellite and UI

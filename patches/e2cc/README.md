@@ -83,7 +83,9 @@ sha256sum --check SHA256SUMS
 
 ## New-workstation recommendation
 
-1. First test a clean upstream checkout at the pinned commit.
+1. For a GUI-only test, start with the clean upstream checkout at the pinned
+   commit. For the browser-streaming deployment, apply `--streaming` before the
+   first build so the OVC application is included and precached.
 2. Use the compatibility patch if the stock Kit configuration is unsuitable,
    or if exact reproduction of the Blackwell environment is required.
 3. Leave the duplicate-load and no-loop patches unapplied initially.
