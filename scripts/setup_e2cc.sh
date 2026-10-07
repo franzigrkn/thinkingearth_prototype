@@ -11,6 +11,7 @@ Patch selections:
   --compatibility      Apply Kit 109.0.5 and HTTPS registry changes.
   --deduplicate-loads  Apply the optional duplicate image-load guard.
   --no-loop            Apply the optional non-looping timeline behavior.
+  --streaming          Enable the Kit 109 WebRTC server and browser client.
   --all                Select all preserved patches.
 
 Other options:
@@ -25,6 +26,7 @@ EOF
 compatibility=false
 deduplicate_loads=false
 no_loop=false
+streaming=false
 check_only=false
 target_path=""
 
@@ -39,10 +41,14 @@ while (($# > 0)); do
         --no-loop)
             no_loop=true
             ;;
+        --streaming)
+            streaming=true
+            ;;
         --all)
             compatibility=true
             deduplicate_loads=true
             no_loop=true
+            streaming=true
             ;;
         --check-only)
             check_only=true
@@ -74,7 +80,7 @@ if [[ -z "$target_path" ]]; then
     exit 2
 fi
 
-if [[ "$compatibility" != true && "$deduplicate_loads" != true && "$no_loop" != true ]]; then
+if [[ "$compatibility" != true && "$deduplicate_loads" != true && "$no_loop" != true && "$streaming" != true ]]; then
     echo "Select at least one patch or use --all." >&2
     usage >&2
     exit 2
@@ -124,6 +130,9 @@ fi
 if [[ "$no_loop" == true ]]; then
     patches+=("$overlay_dir/0003-disable-automatic-timeline-looping.patch")
 fi
+if [[ "$streaming" == true ]]; then
+    patches+=("$overlay_dir/0004-browser-streaming.patch")
+fi
 
 for patch_file in "${patches[@]}"; do
     git -C "$repository_root" apply --check "$patch_file"
@@ -141,4 +150,3 @@ done
 
 echo "E2CC overlay applied successfully to $repository_root"
 git -C "$repository_root" status --short
-

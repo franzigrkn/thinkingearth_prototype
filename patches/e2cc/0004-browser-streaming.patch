@@ -1,0 +1,57 @@
+diff --git a/earth-2-command-center/repo.toml b/earth-2-command-center/repo.toml
+--- a/earth-2-command-center/repo.toml
++++ b/earth-2-command-center/repo.toml
+@@ -74,7 +74,7 @@ apps = [
+     #"${root}/source/apps/package.kit",
+     "${root}/source/apps/omni.earth_2_command_center.app.kit",
+     "${root}/source/apps/omni.earth_2_command_center.app_dev.kit",
+-    #"${root}/source/apps/omni.earth_2_command_center.app_ovc.kit",
++    "${root}/source/apps/omni.earth_2_command_center.app_ovc.kit",
+ ]
+ 
+ # disable automatically generated exts.deps.generated.kit that includes all exts from the source tree
+diff --git a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
+--- a/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
++++ b/earth-2-command-center/source/apps/omni.earth_2_command_center.app_ovc.kit
+@@ -7,9 +7,10 @@ title = "Earth-2 Command Center OVC"
+ [settings.app.exts]
+ folders.'++' = ["${app}/../exts", "${app}/../extscache/", "${app}/../apps"]
+ 
+ [dependencies]
+-"omni.kit.streamsdk.plugins" = {version = "6.0.0", exact = true}
+-#"omni.kit.livestream.webrtc" = {}
++"omni.kit.livestream.app" = {version = "9.1.0", exact = true}
++"omni.kit.livestream.webrtc" = {version = "9.2.0", exact = true}
++"omni.services.livestream.webrtc" = {version = "9.1.0", exact = true}
+ 
+ [settings]
+ # Disable the realm.timeout.
+@@ -32,13 +33,12 @@ title = "Earth-2 Command Center OVC"
+ # Inform certain extensions that they are running on a cloud deployment of the application
+ ovc_deployment = true
+ 
+-# Enable application streaming
+-livestream.enabled = true
+-# Allows the client application to determine streaming resolution.
+-livestream.allowResize = true
+-livestream.webrtcEtli = true
+-livestream.logLevel = "error"
+-livestream.proto = "ws"
++exts."omni.kit.livestream.app".primaryStream.streamType = "webrtc"
++exts."omni.kit.livestream.app".primaryStream.signalPort = 49100
++exts."omni.kit.livestream.app".primaryStream.streamPort = 47998
++exts."omni.kit.livestream.app".primaryStream.allowDynamicResize = true
++exts."omni.services.transport.server.http".host = "0.0.0.0"
++exts."omni.services.transport.server.http".port = 8011
+ 
+ # Scale the application window to match the size & aspect ratio of the monitor.
+ window.scaleToMonitor = true
+@@ -65,5 +65,7 @@ outputStreamLevel = "info"
+ # Exact Version dependencies:
+-# 	omni.kit.streamsdk.plugins-6.0.0
++# 	omni.kit.livestream.app-9.1.0
++# 	omni.kit.livestream.webrtc-9.2.0
++# 	omni.services.livestream.webrtc-9.1.0
+ 
+ # Version lock for all dependencies:
+ [settings.app.exts]

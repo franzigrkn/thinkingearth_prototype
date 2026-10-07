@@ -60,6 +60,29 @@ def map2d():
     """Interactive 2D map page"""
     return render_template('map2d.html')
 
+@app.route('/earth2')
+def earth2():
+    """Interactive 3D Earth-2 Command Center stream"""
+    return render_template(
+        'earth2.html',
+        stream_config={
+            'url': os.environ.get('E2CC_STREAM_URL', '').strip(),
+            'http_port': int(os.environ.get('E2CC_STREAM_HTTP_PORT', '8011')),
+            'signal_port': int(os.environ.get('E2CC_STREAM_SIGNAL_PORT', '49100')),
+            'media_port': int(os.environ.get('E2CC_STREAM_MEDIA_PORT', '47998')),
+        },
+    )
+
+@app.route('/api/e2cc/config')
+def get_e2cc_config():
+    """Return the browser-visible E2CC stream configuration"""
+    return jsonify({
+        'url': os.environ.get('E2CC_STREAM_URL', '').strip(),
+        'http_port': int(os.environ.get('E2CC_STREAM_HTTP_PORT', '8011')),
+        'signal_port': int(os.environ.get('E2CC_STREAM_SIGNAL_PORT', '49100')),
+        'media_port': int(os.environ.get('E2CC_STREAM_MEDIA_PORT', '47998')),
+    })
+
 @app.route('/api/image/<datapoint>/<variable>/<epoch>')
 def get_prediction_image(datapoint, variable, epoch):
     """API endpoint to serve prediction images based on datapoint, variable, and epoch"""

@@ -1,3 +1,4 @@
 7fb1d7377b705a761d09a810c70f7f97a4d710c4b33e891b0624f3d48c697b52  0001-kit-109.0.5-and-https-registries.patch
 5a74693d4eaa1fbe41c263a1f31fa66135bfefe053a94a8a87c8a971fd5a097e  0002-deduplicate-timestamped-image-loads.patch
 efa80c51aec79ec0591d38d9c568e5150e85068558087a3c576ec6fdde95c69f  0003-disable-automatic-timeline-looping.patch
+64fb09f55584179dc17a54eb66cdb800f72b25a085852ce0fd5b915780b2b55a  0004-browser-streaming.patch

@@ -21,6 +21,7 @@ commit, a clean worktree, and all patch checksums before changing anything.
 | `0001-kit-109.0.5-and-https-registries.patch` | Compatibility | Pins Kit 109.0.5 and uses the working HTTPS extension registries. This reproduces the validated Blackwell/R595 setup. Apply it on another machine only when reproducing that setup or when the stock Kit 109.0.2 setup is unsuitable. |
 | `0002-deduplicate-timestamped-image-loads.patch` | Optional | Avoids queuing another asynchronous JPEG decode while the selected image path is unchanged. This is a defensive optimization and was not the solution to the RealVNC display problem. |
 | `0003-disable-automatic-timeline-looping.patch` | Optional | Holds the final timeline frame instead of automatically wrapping to the first frame. This was added during the earlier timing investigation and is normally best omitted now that the actual RealVNC cause is known. |
+| `0004-browser-streaming.patch` | Streaming | Replaces the legacy OVC StreamSDK configuration with the Kit 109 WebRTC extensions, enables NVIDIA's browser client on TCP 8011, and precaches the OVC application. |
 
 RealVNC's **Picture quality: High** and **PreferredEncoding: ZRLE** settings are
 client settings and are not represented by an E2CC source patch.
@@ -90,3 +91,15 @@ sha256sum --check SHA256SUMS
 5. Rebuild on the new machine; do not transfer `_build`, Python environments,
    package caches, or shader caches from the previous workstation.
 
+## Browser streaming
+
+Apply the streaming patch alongside whichever compatibility patches the target
+machine needs:
+
+```bash
+./scripts/setup_e2cc.sh --compatibility --streaming /path/to/earth2-weather-analytics
+```
+
+After rebuilding, use `scripts/run_e2cc_streaming.sh` to start the headless OVC
+application with fixed signaling, media, and browser-client ports. See
+`E2CC_STREAMING.md` for the complete workstation and Flask integration runbook.

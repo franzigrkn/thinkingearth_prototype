@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}Interactive 3D Globe | Earth as a Graph{% endblock %}
+
+{% block content %}
+<section class="earth2-page">
+    <div class="earth2-hero">
+        <div>
+            <span class="earth2-eyebrow">GPU-streamed visualization</span>
+            <h2>Interactive Earth-2 Command Center</h2>
+            <p>Explore the precomputed Earth as a Graph predictions on NVIDIA's interactive 3D globe.</p>
+        </div>
+        <div class="earth2-actions">
+            <span id="earth2-status" class="stream-status" aria-live="polite">
+                <span class="stream-status-dot"></span>
+                Preparing viewer
+            </span>
+            <button id="earth2-reconnect" class="btn btn-secondary" type="button">
+                <i class="fas fa-rotate-right"></i>
+                Reload viewer
+            </button>
+            <a id="earth2-open" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-up-right-from-square"></i>
+                Open full screen
+            </a>
+        </div>
+    </div>
+
+    <div id="earth2-message" class="earth2-message" hidden></div>
+
+    <div class="earth2-viewer-shell">
+        <iframe
+            id="earth2-viewer"
+            class="earth2-viewer"
+            title="NVIDIA Earth-2 Command Center WebRTC viewer"
+            allow="autoplay; clipboard-read; clipboard-write; fullscreen; gamepad"
+            allowfullscreen
+        ></iframe>
+    </div>
+
+    <div class="earth2-notes">
+        <p><i class="fas fa-circle-info"></i> This prototype supports one interactive browser session at a time.</p>
+        <p><i class="fas fa-network-wired"></i> The browser must be able to reach the workstation's WebRTC signaling and UDP media ports.</p>
+    </div>
+</section>
+
+<script id="earth2-stream-config" type="application/json">{{ stream_config|tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/earth2.js') }}"></script>
+{% endblock %}
