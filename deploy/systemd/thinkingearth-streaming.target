@@ -1,0 +1,7 @@
+[Unit]
+Description=ThinkingEarth browser streaming stack
+Wants=thinkingearth-e2cc.service thinkingearth-flask.service
+After=network-online.target
+
+[Install]
+WantedBy=default.target

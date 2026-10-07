@@ -44,35 +44,88 @@ cd /var/tmp/fgerken/e2cc/earth2-weather-analytics/earth-2-command-center
 The OVC application is included in extension precaching so the streaming
 extensions are present before launch.
 
-## 3. Launch the stream
+## 3. Configure managed startup
 
-On the current workstation:
-
-```bash
-cd /home/fgerken/CODE/thinkingearth_prototype
-E2CC_PUBLIC_IP=10.86.6.247 ./scripts/run_e2cc_streaming.sh
-```
-
-Keep the terminal open. The first headless launch can take several minutes
-while RTX shaders compile. Verify the browser service from another terminal:
-
-```bash
-curl --fail http://127.0.0.1:8011/api/stream-config
-ss -lntup | grep -E ':(8011|49100|47998)\\b'
-```
-
-## 4. Launch Flask
-
-For local HTTP testing:
+E2CC and Flask run as user-level systemd services. Machine-specific values are
+kept in an ignored environment file:
 
 ```bash
 cd /home/fgerken/CODE/thinkingearth_prototype
-E2CC_STREAM_URL=http://10.86.6.247:8011 python3 app.py
+cp deploy/systemd/streaming.env.example deploy/systemd/streaming.env
 ```
 
-Open `http://10.86.6.247:5000/earth2` from a browser that can reach the
-workstation. If `E2CC_STREAM_URL` is omitted, the page uses the Flask hostname
-and port 8011 automatically.
+Edit `deploy/systemd/streaming.env` and set at least:
+
+- `E2CC_APP_DIR` to the rebuilt E2CC application directory.
+- `E2CC_PUBLIC_IP` to the address advertised to WebRTC clients.
+- `E2CC_STREAM_URL` to the browser-visible NVIDIA client URL.
+
+Keep each E2CC port equal to its corresponding `E2CC_STREAM_*` port. Then
+validate all launchers, configuration values, and rendered units without
+changing the host:
+
+```bash
+./scripts/install_streaming_services.sh --check-only
+```
+
+Install, enable, and start the stack:
+
+```bash
+./scripts/install_streaming_services.sh --start --enable-linger
+```
+
+The installer renders absolute project and config paths into
+`~/.config/systemd/user/`, enables `thinkingearth-streaming.target`, and keeps
+logs in the user journal. `--enable-linger` makes the user manager start at
+boot and survive logout; local policy may ask for authorization.
+
+The units provide:
+
+- Launch-time preflight validation.
+- `Restart=on-failure` for E2CC and Flask.
+- Coordinated start and stop through one target.
+- Structured logs through journald.
+
+Operate the stack with:
+
+```bash
+systemctl --user status thinkingearth-streaming.target
+systemctl --user restart thinkingearth-streaming.target
+systemctl --user stop thinkingearth-streaming.target
+journalctl --user -u thinkingearth-e2cc.service -f
+journalctl --user -u thinkingearth-flask.service -f
+```
+
+Re-run the installer after moving the repository, changing the config-file
+path, or updating the service templates.
+
+## 4. Manual diagnostic startup
+
+The managed services are preferred. For terminal-based diagnosis, export the
+same local configuration and launch each helper in a separate terminal:
+
+```bash
+cd /home/fgerken/CODE/thinkingearth_prototype
+set -a
+source deploy/systemd/streaming.env
+set +a
+./scripts/run_e2cc_streaming.sh
+```
+
+```bash
+cd /home/fgerken/CODE/thinkingearth_prototype
+set -a
+source deploy/systemd/streaming.env
+set +a
+./scripts/run_flask_streaming.sh
+```
+
+Do not run these commands while the systemd stack owns the same ports. The
+first headless E2CC launch can take several minutes while RTX shaders compile.
+
+Open `http://<workstation-address>:5000/earth2` from a browser that can reach
+the workstation. If `E2CC_STREAM_URL` is omitted, the page uses the Flask
+hostname and port 8011 automatically.
 
 The available Flask settings are:
 
@@ -82,6 +135,14 @@ The available Flask settings are:
 | `E2CC_STREAM_HTTP_PORT` | `8011` | Browser client HTTP service |
 | `E2CC_STREAM_SIGNAL_PORT` | `49100` | WebRTC signaling |
 | `E2CC_STREAM_MEDIA_PORT` | `47998` | WebRTC UDP media |
+
+Additional Flask-service settings are:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `FLASK_BIND` | `0.0.0.0:5000` | Gunicorn listener |
+| `FLASK_WORKERS` | `2` | Gunicorn worker processes |
+| `FLASK_APP_MODULE` | `app:app` | WSGI application |
 
 ## Network requirements
 

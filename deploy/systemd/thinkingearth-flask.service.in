@@ -1,0 +1,23 @@
+[Unit]
+Description=ThinkingEarth Flask application
+Wants=network-online.target
+After=network-online.target
+PartOf=thinkingearth-streaming.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+EnvironmentFile=@CONFIG_FILE@
+WorkingDirectory=@PROJECT_DIR@
+ExecStartPre=@PROJECT_DIR@/scripts/run_flask_streaming.sh --check-only
+ExecStart=@PROJECT_DIR@/scripts/run_flask_streaming.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=mixed
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=thinkingearth-streaming.target
