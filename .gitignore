@@ -1,0 +1,4 @@
+.venv
+*.h5
+/check_data/e2cc_exports/
+/deploy/systemd/streaming.env
