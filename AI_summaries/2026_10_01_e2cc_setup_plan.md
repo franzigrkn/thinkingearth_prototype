@@ -2,7 +2,12 @@
 
 ## Objective
 
-Build a browser-accessible NVIDIA Earth-2 Command Center (E2CC) viewer for precomputed global predictions. E2CC handles GPU rendering and streams to reviewers through WebRTC; no model inference is included.
+Build an internal, browser-accessible NVIDIA Earth-2 Command Center (E2CC)
+viewer for precomputed global predictions. E2CC handles GPU rendering and
+streams through WebRTC into the Flask website; no model inference is included.
+The final prototype will run on the RTX 6000 Ada workstation and be recorded
+through the website for reviewer delivery. Reviewers will receive the video
+and this setup blueprint, not access to a public deployment.
 
 ## Workstation schedule
 
@@ -38,17 +43,22 @@ Build a browser-accessible NVIDIA Earth-2 Command Center (E2CC) viewer for preco
 2. Transfer the raw HDF5/generated exports or regenerate them and compare the manifest checksums.
 3. Rerun NVIDIA setup; do not reuse Blackwell `_build` output, virtual environments, shader caches, or architecture-specific CUDA binaries.
 4. Repeat Docker GPU, E2CC launch, and all three visual checks, using RealVNC High quality and ZRLE if RealVNC is used.
-5. Continue with additional variables/timestamps, WebRTC, and public deployment.
+5. Reproduce the Flask-integrated WebRTC stream, validate it from the Mac, and
+   record the reviewer demonstration through `/earth2`.
+6. Continue with additional variables and timestamps later as source data
+   becomes available.
 
-## Reviewer deployment
+## Reviewer delivery
 
-- Begin with one GPU-backed interactive session.
-- Configure HTTPS, authentication, session cleanup, and WebRTC/TURN networking.
-- Link or embed the streaming client from the existing Flask website.
-- Add multiple independent sessions only if concurrent reviewer access is required.
+- Keep the live prototype on the trusted company network or VPN.
+- Use one GPU-backed interactive session embedded in the Flask website.
+- Record the final demonstration from the website on the Ada workstation.
+- Give reviewers the video and the reproducible local-infrastructure blueprint.
+- Defer public hosting, HTTPS, authentication, TURN, and multi-user orchestration.
 
 ## First-version exclusions
 
 - Live inference
 - Data Federation Mesh and Earth2Studio workflows beyond reference-app startup requirements
 - Multi-GPU scaling
+- Public internet deployment

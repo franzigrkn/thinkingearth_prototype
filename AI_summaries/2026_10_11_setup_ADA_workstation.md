@@ -7,6 +7,10 @@ sources on the RTX 6000 Ada workstation available from 2026-10-11. Restore the
 ignored scientific data from CSS Storage, build NVIDIA Earth-2 Weather
 Analytics locally, recreate the Flask and WebRTC services, and repeat the
 three-channel acceptance test through both RealVNC and the browser stream.
+Keep the live prototype internal to the trusted company network or VPN. After
+acceptance, use the Flask `/earth2` page from the Mac to record the reviewer
+demonstration. Reviewers will receive the video and this setup blueprint, not
+live access to the workstation.
 
 Do not transfer virtual environments, E2CC `_build` output, containers,
 compiled CUDA artifacts, package caches, or shader caches from the Blackwell
@@ -590,7 +594,26 @@ If workstation policy permits a reboot test, reboot after acceptance, reconnect
 over SSH, and repeat the service-state and endpoint checks from Section 12.
 This confirms the enabled target and lingering behavior on the Ada host.
 
-## 14. Record the completed migration
+## 14. Record the reviewer demonstration
+
+Record through the integrated Flask interface, not through RealVNC or the
+direct NVIDIA client:
+
+1. Connect the Mac to the trusted company network or VPN.
+2. Confirm `thinkingearth-streaming.target` is active and close all other
+   viewer tabs.
+3. Open `http://ADA_ADDRESS:5000/earth2` in Chrome or Edge.
+4. Load the intended metadata in the headless E2CC instance and arrange the
+   starting globe view.
+5. Start the Mac screen recording and demonstrate the website, globe rotation
+   and zoom, layer selection, and timeline playback for the selected datasets.
+6. Stop the recording, verify its picture quality and audio, and store the
+   final video outside Git in the agreed reviewer-delivery location.
+
+The recording is the reviewer deliverable. Do not expose ports `5000`, `8011`,
+`49100`, or `47998` to the public internet for reviewer access.
+
+## 15. Record the completed migration
 
 After acceptance, record:
 
@@ -615,8 +638,9 @@ curl --fail http://127.0.0.1:8011/api/stream-config
 
 Also record whether the stock NVIDIA checkout or the compatibility overlay was
 used, whether the browser test worked directly from the Mac, and whether a
-reboot test was completed. Do not commit the local `streaming.env`, restored
-HDF5, generated exports, build products, environments, or caches.
+reboot test was completed. Record where the final demonstration video is held,
+but do not commit the video, local `streaming.env`, restored HDF5, generated
+exports, build products, environments, or caches.
 
 ## Troubleshooting reference
 

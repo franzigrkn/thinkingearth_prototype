@@ -26,20 +26,33 @@ to:
 5. Clone the pinned NVIDIA release, build E2CC, and validate the installation.
 6. Configure RealVNC, launch E2CC, and repeat the three-channel acceptance
    test.
+7. Install the managed Flask and headless E2CC streaming services, then repeat
+   the browser acceptance test through `/earth2` from the Mac.
+8. Record the reviewer demonstration through the website after the Ada setup
+   passes acceptance.
 
 Do not transfer Blackwell build output, virtual environments, CUDA artifacts,
 containers, or caches. Rebuild them on the Ada machine.
 
-## Work after the migration
+## Current delivery plan
+
+1. Keep the live prototype available only on the trusted company network or
+   VPN; it remains HTTP-only and unauthenticated.
+2. Use the Flask `/earth2` interface for the final demonstration rather than
+   recording RealVNC or NVIDIA's direct browser client.
+3. Give reviewers the recorded video, not access to the live workstation.
+4. Keep the migration and setup notes as the blueprint for users who want to
+   reproduce the viewer on their own compatible GPU infrastructure.
+5. Defer public hosting, cloud GPU deployment, HTTPS, authentication, TURN,
+   session cleanup, and multi-user orchestration.
+
+## Later visualization work
 
 1. Improve model, variable, unit, timestamp, and legend presentation.
 2. Replace the temporary lead-0 reference with real ERA5 ground truth and add
    signed or absolute error layers.
 3. Add more variables and test-year timestamps as source data becomes
    available.
-4. Enable E2CC WebRTC streaming and test from a second machine.
-5. Deploy one authenticated GPU-backed reviewer session with HTTPS, TURN, and
-   abandoned-session cleanup, then connect it to the existing Flask site.
 
 No further investigation of the old visual-collapse symptom is needed unless
 it recurs with RealVNC fixed to High quality and ZRLE.

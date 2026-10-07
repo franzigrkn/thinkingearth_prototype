@@ -26,6 +26,15 @@ Mac browser
   -> RTX PRO 6000 Blackwell GPU
 ```
 
+## Current delivery decision
+
+The live stream will remain internal on the trusted company network or VPN.
+After reproducing this setup on the RTX 6000 Ada workstation, the operator will
+open the embedded viewer at `/earth2` from the Mac and record the reviewer
+demonstration there. Reviewers will receive the video and this deployment
+blueprint rather than access to a public hosted stream. Public cloud hosting
+and its associated security and multi-user work are deferred.
+
 ## Verified workstation
 
 - Hostname: `1u1g-gen-0432`
@@ -190,8 +199,9 @@ Launch it on the current workstation:
 E2CC_PUBLIC_IP=10.86.6.247 ./scripts/run_e2cc_streaming.sh
 ```
 
-`E2CC_PUBLIC_IP` is sent to the WebRTC server as its advertised public
-endpoint. It must be changed on the next workstation.
+`E2CC_PUBLIC_IP` is the Kit setting name for the address advertised to WebRTC
+clients. For this internal deployment it must contain the Ada workstation's
+company-network/VPN address; the name does not imply public internet exposure.
 
 The Flask process has a matching wrapper:
 
@@ -356,7 +366,7 @@ iframe or Flask integration problem.
 
 ## Network requirements
 
-The reviewer's browser must reach:
+The operator's browser must reach:
 
 | Port | Protocol | Purpose |
 | --- | --- | --- |
@@ -464,15 +474,20 @@ Transfer the implementation through Git, not by copying runtime state.
 - The current `10.86.6.247` address.
 - Machine-installed or enabled service state.
 
-## Production work after migration
+## Demo recording after migration
 
-After reproducing the working direct stream on Ada:
+After reproducing and accepting the browser stream on Ada:
 
-1. Add service readiness monitoring and alerting around the managed units.
-2. Put Flask and the NVIDIA browser client behind HTTPS.
-3. Add authentication before exposing the viewer beyond the trusted network.
-4. Configure TURN and test from a network without direct workstation access.
-5. Add automatic metadata loading or a browser-friendly data-selection flow.
-6. Add session cleanup and monitoring.
-7. Decide whether one shared session is sufficient before adding multi-user
-   orchestration.
+1. Connect the Mac to the company network or VPN.
+2. Confirm the managed services are healthy and close every other viewer tab.
+3. Open `http://<ADA_ADDRESS>:5000/earth2` in Chrome or Edge.
+4. Load and verify the project metadata in the headless E2CC instance.
+5. Record the embedded website view, including globe interaction, layer
+   selection, and timeline playback; do not record through RealVNC or the
+   direct `:8011` client.
+6. Keep the workstation endpoints internal and provide only the finished video
+   and setup blueprint to reviewers.
+
+HTTPS, authentication, TURN, readiness monitoring, automatic session cleanup,
+and multi-user orchestration remain possible future work but are not required
+for the current internal prototype and recorded reviewer delivery.

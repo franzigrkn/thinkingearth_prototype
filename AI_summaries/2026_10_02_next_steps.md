@@ -50,14 +50,20 @@
 
 ## 6. Add browser streaming
 
-- Enable local E2CC WebRTC streaming.
-- Test from a browser on the workstation and then from another machine on the company network.
+- Enable local E2CC WebRTC streaming. **Completed on Blackwell.**
+- Embed the stream in the Flask `/earth2` page. **Completed on Blackwell.**
+- Reproduce both services on Ada and test from the Mac on the company network
+  or VPN.
 - Keep the first deployment to one independent session on one GPU.
 
-## 7. Publish the reviewer experience
+## 7. Deliver the reviewer experience
 
-- Package E2CC and its static visualization assets for an approved public GPU host.
-- Configure HTTPS, authentication, WebRTC/TURN networking, and abandoned-session cleanup.
-- Link or embed the streaming client from the existing Flask website.
-- Add GPU-backed sessions only if concurrent independent reviewers are required.
-- Provide a short fallback recording or static viewer if a reviewer network blocks WebRTC.
+- Keep the working prototype internal; do not expose its unauthenticated HTTP
+  and WebRTC endpoints to the public internet.
+- On the Ada workstation, load the project datasets in the headless E2CC
+  instance and record the demonstration through the Flask `/earth2` page.
+- Provide the resulting video to reviewers.
+- Use the setup and migration notes as the blueprint for users who want to
+  reproduce the system on their own compatible GPU infrastructure.
+- Treat public cloud hosting, HTTPS, authentication, TURN, cleanup, and
+  multi-user orchestration as deferred future work.

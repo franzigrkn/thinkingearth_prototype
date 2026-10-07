@@ -30,6 +30,16 @@ NVIDIA client. Flask does **not** proxy, encode, decode, or relay the E2CC video
 stream. Mouse and keyboard events and rendered frames travel between the
 browser and E2CC through the WebRTC connection.
 
+## Current delivery decision
+
+The live integration will remain internal on the trusted company network or
+VPN. It will be rebuilt on the RTX 6000 Ada workstation and used through the
+Flask `/earth2` page to record the final reviewer demonstration. Reviewers will
+receive the video and the reproducible setup blueprint rather than credentials
+or network access to a hosted instance. Public deployment, cloud GPU hosting,
+authentication, TURN, and multi-user orchestration are outside the current
+scope.
+
 ## Flask routes
 
 The same routes were added to both `app.py` and `app_production.py`.
@@ -82,9 +92,9 @@ If `E2CC_STREAM_URL` is empty, `static/js/earth2.js` builds the viewer URL from
 the current page's protocol and hostname plus `E2CC_STREAM_HTTP_PORT`. This is
 convenient when Flask and E2CC are exposed through the same hostname.
 
-An explicit URL is preferable when using a reverse proxy, a public domain, or
-different internal and external addresses. The configured URL must be usable
-by the reviewer's browser; it is not a server-internal URL.
+An explicit URL is preferable when the Flask page and stream use different
+internal addresses. The configured URL must be usable by the operator's
+browser; it is not a server-internal URL.
 
 ## Page and frontend behavior
 
@@ -197,23 +207,25 @@ has lingering enabled, so it can start at boot and continue after logout.
 - The current WebRTC mode provides one controlling browser session at a time.
 - Opening multiple viewer tabs can prevent a new tab from connecting until the
   first connection is closed.
-- The current site and viewer use HTTP. A public HTTPS deployment must expose
-  the viewer through HTTPS or a same-origin reverse proxy.
+- The current site and viewer use HTTP and must remain inside the trusted
+  company network or VPN.
 - There is no authentication, authorization, session scheduler, automatic
   cleanup, or TURN service yet.
+- Those public-deployment features are intentionally deferred because the
+  current reviewer deliverable is a recorded video.
 
 ## Repository state
 
-The project is on branch `e2cc`. The streaming and Flask integration through
-the summary update is pushed at:
+The project is on branch `e2cc`. The Flask integration was introduced at
+`8349b3c`, the reproducible service startup at `898085d`, and the branch state
+before this delivery-decision update was pushed at:
 
 ```text
-8349b3c
+dfa126e
 ```
 
-The reproducible startup changes described in this update are currently
-working-tree changes. They must be reviewed, committed, and pushed before the
-current workstation is released.
+The documentation changes recording the internal-demo decision are the only
+current working-tree changes and must be committed and pushed before migration.
 
 ## Migration implications
 
@@ -228,6 +240,8 @@ workstation:
 5. Create a machine-local `deploy/systemd/streaming.env` from the example.
 6. Install with `--start --enable-linger`.
 7. Repeat the `/earth2` browser acceptance test.
+8. Load the project metadata in the headless streamed instance and record the
+   demonstration from `/earth2` on the Mac.
 
 Do not transfer the current `.venv`, `tmux` sessions, running processes,
 machine IP address, E2CC build output, or caches.
