@@ -149,7 +149,7 @@ _build/linux-x86_64/release/omni.earth_2_command_center.app_ovc.sh
 Do not transfer this `_build` tree to another GPU workstation. Rebuild from
 source on the target machine.
 
-## Launch helper
+## Launch helpers
 
 The project provides:
 
@@ -193,55 +193,109 @@ E2CC_PUBLIC_IP=10.86.6.247 ./scripts/run_e2cc_streaming.sh
 `E2CC_PUBLIC_IP` is sent to the WebRTC server as its advertised public
 endpoint. It must be changed on the next workstation.
 
-## Current live processes
+The Flask process has a matching wrapper:
 
-Two temporary `tmux` sessions are currently running.
-
-### `thinkingearth-e2cc`
-
-```bash
-cd /home/fgerken/CODE/thinkingearth_prototype
-E2CC_PUBLIC_IP=10.86.6.247 ./scripts/run_e2cc_streaming.sh
+```text
+scripts/run_flask_streaming.sh
 ```
 
-The process reached E2CC `app ready`, started the HTTP browser service, and
-reported:
+It verifies the project `.venv`, Gunicorn executable, worker count, bind
+address, and WSGI module before launching Gunicorn. Its service-specific
+variables are `FLASK_BIND`, `FLASK_WORKERS`, and `FLASK_APP_MODULE`.
+
+## Reproducible service startup
+
+Portable user-level systemd definitions now live in:
+
+```text
+deploy/systemd/thinkingearth-e2cc.service.in
+deploy/systemd/thinkingearth-flask.service.in
+deploy/systemd/thinkingearth-streaming.target
+deploy/systemd/streaming.env.example
+```
+
+The installer is:
+
+```bash
+scripts/install_streaming_services.sh
+```
+
+It performs the following steps:
+
+- Loads and validates the machine-local environment file.
+- Runs both launch helpers in `--check-only` mode.
+- Renders absolute repository and config paths into the unit templates.
+- Validates the rendered systemd units.
+- Installs them under `~/.config/systemd/user/`.
+- Enables the shared target for automatic startup.
+- Optionally enables user lingering and starts or restarts the stack.
+
+Machine-specific values are stored in the ignored file:
+
+```text
+deploy/systemd/streaming.env
+```
+
+The current file contains the Blackwell E2CC path, `10.86.6.247`, the three
+stream ports, the Flask URL, `0.0.0.0:5000`, and two Gunicorn workers. It must
+be recreated rather than copied unchanged on the Ada workstation.
+
+Reproduce the installation on a prepared workstation with:
+
+```bash
+cp deploy/systemd/streaming.env.example deploy/systemd/streaming.env
+# Edit deploy/systemd/streaming.env.
+./scripts/install_streaming_services.sh --check-only
+./scripts/install_streaming_services.sh --start --enable-linger
+```
+
+The services use `Restart=on-failure`, write stdout and stderr to journald,
+and run launch-time preflight checks. `thinkingearth-streaming.target`
+coordinates both services.
+
+## Current live services
+
+The temporary tmux sessions have been removed. The live processes are now:
+
+| Unit | Process |
+| --- | --- |
+| `thinkingearth-e2cc.service` | Headless E2CC OVC stream |
+| `thinkingearth-flask.service` | Gunicorn with two Flask workers |
+| `thinkingearth-streaming.target` | Shared startup and stop target |
+
+The target is enabled and the account has `Linger=yes`, so the user manager
+can start the stack during boot and keep it running after logout. Both live
+process trees were verified in their respective systemd cgroups.
+
+The managed E2CC launch reached `app ready` and reported:
 
 ```text
 Started primary stream server on signal port 49100 and stream port 47998
 ```
 
-### `thinkingearth-flask`
+The managed Flask endpoint and NVIDIA configuration endpoint both returned
+HTTP 200 after a clean managed restart. A Mac browser then reloaded `/earth2`
+and established a new WebRTC client connection.
+
+Inspect and operate the stack with:
 
 ```bash
-cd /home/fgerken/CODE/thinkingearth_prototype
-E2CC_STREAM_URL=http://10.86.6.247:8011 \
-  .venv/bin/gunicorn \
-  --bind 0.0.0.0:5000 \
-  --workers 2 \
-  --access-logfile - \
-  app:app
+systemctl --user status thinkingearth-streaming.target
+systemctl --user restart thinkingearth-streaming.target
+systemctl --user stop thinkingearth-streaming.target
+journalctl --user -u thinkingearth-e2cc.service -f
+journalctl --user -u thinkingearth-flask.service -f
 ```
 
-Inspect either process with:
+Re-run the installer after changing the repository location, environment-file
+location, or service templates. Normal environment-value changes only require
+a target restart.
+
+To disable boot startup without deleting the installed units:
 
 ```bash
-tmux attach -t thinkingearth-e2cc
-tmux attach -t thinkingearth-flask
+systemctl --user disable --now thinkingearth-streaming.target
 ```
-
-Detach with `Ctrl+B`, then `D`.
-
-Stop the temporary processes with:
-
-```bash
-tmux kill-session -t thinkingearth-e2cc
-tmux kill-session -t thinkingearth-flask
-```
-
-These sessions survive SSH and RealVNC disconnections. They do not survive a
-reboot and do not restart after a crash. Portable service definitions are the
-next planned step; permanent services should be installed on the new machine.
 
 ## Verified service endpoints
 
@@ -359,7 +413,8 @@ with the headless process.
 
 - One peer-to-peer browser connection controls the stream at a time.
 - There is no session scheduler or per-reviewer E2CC process.
-- E2CC does not start automatically after reboot.
+- Startup is managed and reboot-safe, but application-level readiness is not
+  yet monitored beyond systemd process state and launch preflight checks.
 - Flask and E2CC currently use unencrypted HTTP/WebRTC signaling endpoints.
 - There is no authentication or authorization around the viewer.
 - TURN is not configured for NAT or restrictive networks.
@@ -377,6 +432,9 @@ Transfer the implementation through Git, not by copying runtime state.
 - `patches/e2cc/0004-browser-streaming.patch` and its checksum.
 - `scripts/setup_e2cc.sh` with the `--streaming` selection.
 - `scripts/run_e2cc_streaming.sh`.
+- `scripts/run_flask_streaming.sh`.
+- `scripts/install_streaming_services.sh`.
+- The service templates and environment example under `deploy/systemd/`.
 - `E2CC_STREAMING.md` and these two summary files.
 - Raw HDF5 and generated exports through the existing CSS Storage workflow.
 
@@ -390,11 +448,11 @@ Transfer the implementation through Git, not by copying runtime state.
    the final Blackwell configuration exactly.
 6. Rebuild E2CC from source.
 7. Create a fresh Flask `.venv` and install the pinned requirements.
-8. Set the new workstation's browser-visible IP or hostname in
-   `E2CC_PUBLIC_IP` and `E2CC_STREAM_URL`.
-9. Repeat the endpoint checks and browser acceptance test.
-10. Install the portable service definitions and replace the temporary `tmux`
-    processes.
+8. Copy `streaming.env.example` to the ignored `streaming.env` and set the new
+   workstation paths, browser-visible IP or hostname, ports, and Flask values.
+9. Run the installer in `--check-only` mode.
+10. Install with `--start --enable-linger`.
+11. Repeat the endpoint checks and browser acceptance test.
 
 ### Do not transfer
 
@@ -410,7 +468,7 @@ Transfer the implementation through Git, not by copying runtime state.
 
 After reproducing the working direct stream on Ada:
 
-1. Add managed services with restart policies and structured logs.
+1. Add service readiness monitoring and alerting around the managed units.
 2. Put Flask and the NVIDIA browser client behind HTTPS.
 3. Add authentication before exposing the viewer beyond the trusted network.
 4. Configure TURN and test from a network without direct workstation access.

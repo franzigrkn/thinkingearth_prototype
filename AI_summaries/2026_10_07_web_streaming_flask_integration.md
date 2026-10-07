@@ -153,18 +153,17 @@ in `2026_10_07_web_streaming_setup.md`.
 ## Current Flask runtime
 
 The current workstation uses a project-local, ignored `.venv` with the pinned
-requirements from `requirements.txt`. Flask is running through Gunicorn in a
-temporary `tmux` session:
+requirements from `requirements.txt`. Flask is running through Gunicorn under
+the user-level `thinkingearth-flask.service`. The service calls:
 
 ```bash
-cd /home/fgerken/CODE/thinkingearth_prototype
-E2CC_STREAM_URL=http://10.86.6.247:8011 \
-  .venv/bin/gunicorn \
-  --bind 0.0.0.0:5000 \
-  --workers 2 \
-  --access-logfile - \
-  app:app
+scripts/run_flask_streaming.sh
 ```
+
+The wrapper validates the `.venv`, worker count, bind address, and WSGI module
+before executing Gunicorn. Current values come from the ignored
+`deploy/systemd/streaming.env` file: `0.0.0.0:5000`, two workers, `app:app`,
+and `E2CC_STREAM_URL=http://10.86.6.247:8011`.
 
 The integration page is currently available at:
 
@@ -172,9 +171,9 @@ The integration page is currently available at:
 http://10.86.6.247:5000/earth2
 ```
 
-The `tmux` process is a validated temporary runtime, not the intended permanent
-deployment mechanism. It survives SSH and RealVNC disconnections but not a
-workstation reboot, explicit session termination, or process failure.
+The service uses `Restart=on-failure`, journald output, and is coordinated with
+E2CC by `thinkingearth-streaming.target`. The target is enabled and the user
+has lingering enabled, so it can start at boot and continue after logout.
 
 ## Validation completed
 
@@ -186,6 +185,9 @@ workstation reboot, explicit session termination, or process failure.
 - Both Flask and the NVIDIA client are reachable through `10.86.6.247`.
 - The page and interactive E2CC stream were successfully tested from the Mac.
 - Globe rotation and browser interaction work through the integrated page.
+- The managed Flask service returned HTTP 200 after a clean restart.
+- The Gunicorn process tree was verified in the `thinkingearth-flask.service`
+  cgroup.
 
 ## Important boundaries
 
@@ -202,27 +204,30 @@ workstation reboot, explicit session termination, or process failure.
 
 ## Repository state
 
-The project is on branch `e2cc` at the previously pushed commit:
+The project is on branch `e2cc`. The streaming and Flask integration through
+the summary update is pushed at:
 
 ```text
-16e9ffa3abc49639e9b8058c13efdb08ebcd350b
+8349b3c
 ```
 
-The streaming and Flask integration changes described here are currently
-working-tree changes and have not yet been committed or pushed. They must be
-reviewed, committed, and pushed before the current workstation is released.
+The reproducible startup changes described in this update are currently
+working-tree changes. They must be reviewed, committed, and pushed before the
+current workstation is released.
 
 ## Migration implications
 
 The portable integration consists of the Flask source files, streaming patch,
-launch helper, and documentation. On the new workstation:
+launch helpers, systemd templates, installer, and documentation. On the new
+workstation:
 
 1. Clone the updated `e2cc` branch after these changes are committed.
 2. Create a fresh Flask virtual environment and install the requirements.
 3. Rebuild E2CC instead of transferring the Blackwell `_build` directory.
 4. Apply the streaming overlay before the E2CC build.
-5. Set `E2CC_STREAM_URL` to the new browser-visible address.
-6. Repeat the `/earth2` browser acceptance test.
+5. Create a machine-local `deploy/systemd/streaming.env` from the example.
+6. Install with `--start --enable-linger`.
+7. Repeat the `/earth2` browser acceptance test.
 
 Do not transfer the current `.venv`, `tmux` sessions, running processes,
 machine IP address, E2CC build output, or caches.
