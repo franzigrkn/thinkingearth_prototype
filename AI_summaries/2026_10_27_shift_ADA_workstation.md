@@ -26,7 +26,7 @@ going directly to the browser streaming setup.
 3. Python 3.12.16, CUDA 12.8 (V12.8.93), and local-NVMe caches configured.
 4. NVIDIA Earth-2 Weather Analytics cloned and pinned at
    `d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4`.
-5. Only `--streaming` patch applied (no `--compatibility`). Kit 109.0.2 stock.
+5. Both `--streaming` and `--compatibility` patches applied (Kit 109.0.5).
 6. E2CC built successfully; both `app.sh` and `app_ovc.sh` launchers validated.
 7. Flask `.venv` created with pinned requirements.
 8. Managed systemd services installed with `--start --enable-linger`.
@@ -103,9 +103,27 @@ All three systemd units are active with `Linger=yes`:
 - `thinkingearth-e2cc.service`
 - `thinkingearth-flask.service`
 
+### Black viewport — Kit 109.0.2 incompatible with R595 driver
+
+The stock Kit 109.0.2 build showed a black viewport with an indefinite
+"Recompiling Shader…" message on the R595 driver (595.99.02). NVIDIA documents
+Kit 109.0.5 as the minimum version for R595 support.
+
+**Fix:** Fresh clone with both `--compatibility` and `--streaming` patches:
+
+```bash
+git clone https://github.com/NVIDIA-Omniverse-blueprints/earth2-weather-analytics.git
+git switch --detach d4cea36cffed7c9143cf8b8c5ae5e6ae237cfed4 && git lfs pull
+./scripts/setup_e2cc.sh --compatibility --streaming <target>
+cd earth-2-command-center && ./setup.sh && ./build.sh --release
+```
+
+Shader compilation (RtPso async group) completed in ~45 seconds on first
+launch. The globe renders correctly.
+
 ## Remaining steps
 
-- Load `q850`, `q925`, and `q1000` metadata in the headless E2CC instance
-  through the browser and verify the timelines.
+- ~~Load `q850`, `q925`, `q1000` metadata~~ — done; GPU is noticeably faster
+  on the Ada than the Blackwell workstation.
 - Record the reviewer demonstration through `/earth2` from the Mac.
 - Write the final migration record (Step 15 of the runbook).
