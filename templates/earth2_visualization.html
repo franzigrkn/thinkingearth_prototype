@@ -6,7 +6,14 @@
 <div class="about-page">
     <div class="about-hero">
         <h1 class="about-title">Earth2 Visualization</h1>
-        <p class="about-subtitle">Content is currently under development.</p>
+        <p class="about-subtitle">Watch the Earth as a Graph model demonstration in Earth-2 Command Center.</p>
+    </div>
+    
+    <div class="about-section" style="text-align: center;">
+        <video controls style="max-width: 100%; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+            <source src="{{ url_for('static', filename='images/demonstration/earth_as_a_graph_demonstration.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
 </div>
 {% endblock %}

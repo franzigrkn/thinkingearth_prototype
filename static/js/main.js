@@ -3,12 +3,10 @@
 // Global state
 let currentDatapoint = '';
 let currentVariable = '';
-let currentEpoch = '';
 
 // DOM elements
 const datapointSelect = document.getElementById('datapoint-select');
 const variableSelect = document.getElementById('variable-select');
-const epochSelect = document.getElementById('epoch-select');
 const loadButton = document.getElementById('load-visualization');
 const resetButton = document.getElementById('reset-controls');
 const loadingSpinner = document.getElementById('loading-spinner');
@@ -20,7 +18,6 @@ const predictionError = document.getElementById('prediction-error');
 const groundTruthError = document.getElementById('ground-truth-error');
 const datapointName = document.getElementById('datapoint-name');
 const variableName = document.getElementById('variable-name');
-const epochName = document.getElementById('epoch-name');
 
 // Grouping section DOM elements
 const groupingLoadingSpinner = document.getElementById('grouping-loading-spinner');
@@ -28,6 +25,13 @@ const groupingPlaceholderMessage = document.getElementById('grouping-placeholder
 const groupingImageContainer = document.getElementById('grouping-image-container');
 const groupingImage = document.getElementById('grouping-image');
 const groupingError = document.getElementById('grouping-error');
+
+// Segmentation section DOM elements
+const segmentationLoadingSpinner = document.getElementById('segmentation-loading-spinner');
+const segmentationPlaceholderMessage = document.getElementById('segmentation-placeholder-message');
+const segmentationImageContainer = document.getElementById('segmentation-image-container');
+const segmentationImage = document.getElementById('segmentation-image');
+const segmentationError = document.getElementById('segmentation-error');
 
 // Initialize the visualization controls
 function initializeVisualizationControls() {
@@ -43,7 +47,6 @@ function initializeVisualizationControls() {
     // Add event listeners
     datapointSelect.addEventListener('change', handleDatapointChange);
     variableSelect.addEventListener('change', handleVariableChange);
-    epochSelect.addEventListener('change', handleEpochChange);
     loadButton.addEventListener('click', loadVisualization);
     resetButton.addEventListener('click', resetControls);
     
@@ -67,75 +70,43 @@ function handleVariableChange(event) {
     updateLoadButtonState();
 }
 
-// Handle epoch selection change
-function handleEpochChange(event) {
-    currentEpoch = event.target.value;
-    console.log('Epoch changed to:', currentEpoch);
-    updateLoadButtonState();
-}
-
 // Update the load button state based on selections
 function updateLoadButtonState() {
     const hasDatapoint = currentDatapoint !== '';
     const hasVariable = currentVariable !== '';
-    const hasEpoch = currentEpoch !== '';
     
-    const allSelected = hasDatapoint && hasVariable && hasEpoch;
+    const allSelected = hasDatapoint && hasVariable;
     
     loadButton.disabled = !allSelected;
     
     if (allSelected) {
         loadButton.innerHTML = '<i class="fas fa-eye"></i> Load Visualization';
     } else {
-        const missing = [];
-        if (!hasDatapoint) missing.push('datapoint');
-        if (!hasVariable) missing.push('variable');
-        if (!hasEpoch) missing.push('epoch');
-        
-        loadButton.innerHTML = `<i class="fas fa-eye"></i> Select ${missing.join(', ')}`;
+        loadButton.innerHTML = '<i class="fas fa-eye"></i> Select datapoint and variable';
     }
 }
 
 // Load and display the visualization
 async function loadVisualization() {
-    if (!currentDatapoint || !currentVariable || !currentEpoch) {
-        showNotification('Please select all parameters: datapoint, variable, and epoch', 'error');
+    if (!currentDatapoint || !currentVariable) {
+        showNotification('Please select all parameters: datapoint and variable', 'error');
         return;
     }
     
-    console.log(`Loading visualization for datapoint: ${currentDatapoint}, variable: ${currentVariable}, epoch: ${currentEpoch}`);
+    console.log(`Loading visualization for datapoint: ${currentDatapoint}, variable: ${currentVariable}`);
     
     // Show loading state
     showLoadingState();
     
     try {
-        // Determine which images to load based on variable and epoch
-        let predictionImageUrl;
-        let groundTruthImageUrl;
+        // Load rollout GIF for the selected variable and date
+        let rolloutImageUrl = `/static/images/rollout/rollout_${currentVariable}_${currentDatapoint}.gif`;
         
-        // For all epochs up to 200, load images from their respective folders
-        let variableCode;
-        if (currentVariable === 'temperature') {
-            variableCode = 't2m';
-        } else if (currentVariable === 'windspeed') {
-            variableCode = 'windspeed';
-        } else if (currentVariable === 'u500') {
-            variableCode = 'u500';
-        }
-        if (variableCode) {
-            predictionImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_pred.png`;
-            groundTruthImageUrl = `/static/images/predictions/epoch${currentEpoch}/visualization_output_${variableCode}_epoch${currentEpoch}_${currentDatapoint}_target.png`;
-        } else {
-            // Fallback to placeholder images
-            predictionImageUrl = '/static/images/placeholder.svg';
-            groundTruthImageUrl = '/static/images/predictions/ground_truth.png';
-        }
-        
-        // Load both prediction images and grouping image
+        // Load rollout, grouping, and segmentation images
         await Promise.all([
-            loadPredictionImage(predictionImageUrl),
-            loadGroundTruthImage(groundTruthImageUrl),
-            loadGroupingImage()
+            loadPredictionImage(rolloutImageUrl),
+            loadGroupingImage(),
+            loadSegmentationImage()
         ]);
         
         // Update UI with image info
@@ -216,8 +187,7 @@ function loadGroupingImage() {
     return new Promise((resolve, reject) => {
         const img = new Image();
         
-    // For all epochs up to 200, load images from their respective folders
-    let groupingImageUrl = `/static/images/attention/epoch${currentEpoch}/segmentation_output_epoch${currentEpoch}_${currentDatapoint}.png`;
+    let groupingImageUrl = `/static/images/grouping/groupings_${currentDatapoint}T06-00-00.png`;
         
         console.log('Loading grouping image from:', groupingImageUrl);
         
@@ -243,15 +213,44 @@ function loadGroupingImage() {
     });
 }
 
+// Load segmentation image
+function loadSegmentationImage() {
+    console.log('Loading segmentation image');
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        
+        let segmentationImageUrl = `/static/images/AR_segm/ar_segmentation_${currentDatapoint}T06-00-00.png`;
+        
+        console.log('Loading segmentation image from:', segmentationImageUrl);
+        
+        img.onload = () => {
+            console.log('Segmentation image loaded successfully');
+            segmentationImage.src = segmentationImageUrl;
+            segmentationError.style.display = 'none';
+            resolve();
+        };
+        
+        img.onerror = () => {
+            console.error('Failed to load segmentation image');
+            segmentationError.style.display = 'flex';
+            reject(new Error('Failed to load segmentation image'));
+        };
+        
+        setTimeout(() => {
+            reject(new Error('Segmentation image loading timeout'));
+        }, 10000);
+        
+        img.src = segmentationImageUrl;
+    });
+}
+
 // Update image information display
 function updateImageInfo() {
     const datapointText = datapointSelect.options[datapointSelect.selectedIndex].text;
     const variableText = variableSelect.options[variableSelect.selectedIndex].text;
-    const epochText = epochSelect.options[epochSelect.selectedIndex].text;
     
     datapointName.textContent = datapointText;
     variableName.textContent = variableText;
-    epochName.textContent = epochText;
 }
 
 // Show loading state
@@ -263,6 +262,10 @@ function showLoadingState() {
     groupingPlaceholderMessage.style.display = 'none';
     groupingImageContainer.style.display = 'none';
     groupingLoadingSpinner.style.display = 'flex';
+    
+    segmentationPlaceholderMessage.style.display = 'none';
+    segmentationImageContainer.style.display = 'none';
+    segmentationLoadingSpinner.style.display = 'flex';
     
     loadButton.disabled = true;
     loadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
@@ -281,6 +284,11 @@ function showImageState() {
     groupingImageContainer.style.display = 'block';
     groupingError.style.display = 'none';
     
+    segmentationLoadingSpinner.style.display = 'none';
+    segmentationPlaceholderMessage.style.display = 'none';
+    segmentationImageContainer.style.display = 'block';
+    segmentationError.style.display = 'none';
+    
     loadButton.disabled = false;
     updateLoadButtonState();
 }
@@ -295,6 +303,10 @@ function showErrorState() {
     groupingPlaceholderMessage.style.display = 'none';
     groupingImageContainer.style.display = 'block';
     
+    segmentationLoadingSpinner.style.display = 'none';
+    segmentationPlaceholderMessage.style.display = 'none';
+    segmentationImageContainer.style.display = 'block';
+    
     loadButton.disabled = false;
     updateLoadButtonState();
 }
@@ -306,10 +318,8 @@ function resetControls() {
     // Reset selections
     datapointSelect.value = '';
     variableSelect.value = '';
-    epochSelect.value = '';
     currentDatapoint = '';
     currentVariable = '';
-    currentEpoch = '';
     
     // Reset UI state
     placeholderMessage.style.display = 'flex';
@@ -319,6 +329,10 @@ function resetControls() {
     groupingPlaceholderMessage.style.display = 'flex';
     groupingImageContainer.style.display = 'none';
     groupingLoadingSpinner.style.display = 'none';
+    
+    segmentationPlaceholderMessage.style.display = 'flex';
+    segmentationImageContainer.style.display = 'none';
+    segmentationLoadingSpinner.style.display = 'none';
     
     // Update button state
     updateLoadButtonState();

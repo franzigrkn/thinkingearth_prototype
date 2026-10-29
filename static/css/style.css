@@ -360,7 +360,7 @@ body {
     width: 100%;
     height: auto;
     display: block;
-    max-height: 600px;
+    max-height: 950px;
     object-fit: contain;
 }
 
@@ -411,7 +411,7 @@ body {
 }
 
 .single-image-wrapper .image-wrapper {
-    max-width: 600px;
+    max-width: 1000px;
     width: 100%;
 }
 
