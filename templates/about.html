@@ -23,11 +23,11 @@
             </p>
             
             <p>
-                The interactive prototype offers insights into the behavior of the Earth as a Graph model, which is currently under development. This model explores spatial interconnections within weather data using ERA5 datasets provided by ECMWF.
+                The interactive prototype offers insights into the behavior of the Earth as a Graph model, which is currently under development. This model explores spatial interconnections within weather data and auxiliary learning objectivesusing ERA5 datasets provided by ECMWF.
             </p>
             
             <p>
-                By visualizing both the model's predictions and how data points are grouped throughout the training process (based on training epochs), the prototype provides a window into the model's learning dynamics. 
+                By visualizing both the model's predictions as well as additional insights into the model's internal representations, the prototype provides a window into the model's learning dynamics. 
                 It reflects the current state of the model and helps illustrate how spatial relationships in climate data are captured and learned over time.
             </p>
             
@@ -37,16 +37,17 @@
             </p>            <h3>Dashboard Features</h3>
             <p>
                 The main dashboard provides an intuitive interface for selecting various parameters related to the choice of model. 
-                Users can select from twelve different datetimes throughout the test year 2018, three variables (WindSpeed,. Temperature, Zonal Wind U500), and multiple training epochs (10, 20, 40, 60, 80, 100, 150, 200).
+                Users can select from different datetimes throughout the test year 2018, four variables (Temperature, Geopotential Height at 500hPa, WindSpeed surface and Total Column Water Vapour).
             </p>
             
             <h3>Visualization Components</h3>
             <p>
                 The platform features a dual-panel prediction visualizer that displays model predictions alongside 
                 ground truth data for direct comparison. The system dynamically loads 
-                epoch-specific visualization images, allowing users to analyze how model performance varies with 
-                different training configurations. Additionally, an attention-based spatial grouping panel provides 
-                insights into how the model focuses on different geographical regions during prediction.
+                variable-specificvisualization images, allowing users to analyze how model performance varies with 
+                different datapoints and variable selections. Additionally, an attention-based spatial grouping panel provides 
+                insights into how the model focuses on different geographical regions during prediction, as well as a visualization of learned segmentation tasks to segment extreme weather events.
+                Additionally, a spatial evaluation of the model's predictions is provided, showing the model's predictions compared to a comparable baseline model.
             </p>
             
             <h3>Interactive Analysis</h3>
@@ -55,6 +56,11 @@
                 change for different datetimes, variables and model training iterations. This enables 
                 comprehensive analysis of model behavior, prediction accuracy, and spatial-temporal patterns in 
                 Earth system dynamics.
+            </p>
+
+            <h3>earth2 Visualization</h3>
+            <p>
+                Additionally, the platform includes a demonstration video of visualizing the Earth as a Graph model using NVIDIA's Earth2 platform.
             </p>
         </div>
 
