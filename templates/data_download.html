@@ -15,12 +15,47 @@
             Model Predictions
         </h2>
         <p>
-            We provide the extracted predictions from the Earth as a Graph model here as downloadable datasets. 
+            We provide the extracted predictions from the Earth as a Graph model here as downloadable datafiles. 
             The data is available in Earth2-compatible formats, allowing you to load it directly into your local 
             Earth-2 Command Center (E2CC) application for further analysis and visualization.
         </p>
         <p>
-            Download links will be made available here shortly. Please check back soon.
+            <a href="{{ url_for('static', filename='images/e2cc_exports.zip') }}" class="btn btn-primary" download>
+                <i class="fas fa-download"></i>
+                Download E2CC Exports (.zip)
+            </a>
+        </p>
+    </div>
+
+    <div class="about-section">
+        <h2 class="section-heading">
+            <i class="fas fa-cogs"></i>
+            E2CC Application Setup
+        </h2>
+        <p>
+            The interactive prototype is built on the
+            <a href="https://github.com/NVIDIA/earth2-weather-analytics" target="_blank">NVIDIA Earth-2 Weather Analytics blueprint</a>
+            (pinned at release 1.1.0, commit <code>d4cea36</code>). It requires an NVIDIA RTX GPU with at least
+            48 GB VRAM — the RTX 6000 Ada Generation and RTX PRO 6000 Blackwell Server Edition are both validated
+            choices — running on Ubuntu 22.04 with NVIDIA driver 580.105 or newer.
+        </p>
+        <p>
+            The build environment needs CUDA 12.8 installed side-by-side (for PyTorch/torch-harmonics compilation),
+            Python 3.12 managed through <code>uv</code>, Docker with the NVIDIA Container Toolkit configured for
+            GPU access, and Git LFS.
+        </p>
+        <p>
+            On systems with an R595-series NVIDIA driver, the project's <code>--compatibility</code> patch
+            (upgrading Kit to 109.0.5) must be applied before building to avoid a black viewport during shader
+            compilation.
+        </p>
+        <p>
+            The first launch compiles RTX ray-tracing shaders, which can take up to several minutes — the
+            initially grey or black window during this period is not a crash.
+        </p>
+        <p>
+            The project data is exported with <code>scripts/export_e2cc.py</code> and loaded into E2CC through
+            <strong>"Add features from metadata file"</strong>.
         </p>
     </div>
 </div>

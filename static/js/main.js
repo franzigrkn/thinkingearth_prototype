@@ -33,6 +33,13 @@ const segmentationImageContainer = document.getElementById('segmentation-image-c
 const segmentationImage = document.getElementById('segmentation-image');
 const segmentationError = document.getElementById('segmentation-error');
 
+// Spatial evaluation section DOM elements
+const spatialEvalLoadingSpinner = document.getElementById('spatial-eval-loading-spinner');
+const spatialEvalPlaceholderMessage = document.getElementById('spatial-eval-placeholder-message');
+const spatialEvalImageContainer = document.getElementById('spatial-eval-image-container');
+const spatialEvalImagesWrapper = document.getElementById('spatial-eval-images-wrapper');
+const spatialEvalError = document.getElementById('spatial-eval-error');
+
 // Initialize the visualization controls
 function initializeVisualizationControls() {
     console.log('Initializing visualization controls...');
@@ -106,7 +113,8 @@ async function loadVisualization() {
         await Promise.all([
             loadPredictionImage(rolloutImageUrl),
             loadGroupingImage(),
-            loadSegmentationImage()
+            loadSegmentationImage(),
+            loadSpatialEvalImage()
         ]);
         
         // Update UI with image info
@@ -244,6 +252,75 @@ function loadSegmentationImage() {
     });
 }
 
+// Load spatial evaluation image(s)
+function loadSpatialEvalImage() {
+    console.log('Loading spatial evaluation image');
+
+    // Map app variable names to rmse_diff file variable names
+    let fileVars;
+    if (currentVariable === 'wind') {
+        fileVars = ['u10m', 'v10m'];
+    } else {
+        fileVars = [currentVariable];
+    }
+
+    // Clear previous images
+    spatialEvalImagesWrapper.innerHTML = '';
+
+    spatialEvalImagesWrapper.style.display = 'flex';
+    spatialEvalImagesWrapper.style.flexDirection = 'column';
+    spatialEvalImagesWrapper.style.gap = '1rem';
+    spatialEvalImagesWrapper.style.alignItems = 'center';
+
+    const promises = fileVars.map(varName => {
+        const url = `/static/images/rmse_diff/rmse_diff_${varName}_${currentDatapoint}T06-00-00.png`;
+        console.log('Loading spatial eval image from:', url);
+
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+
+            img.onload = () => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
+
+                const varLabels = {
+                    't2m': 'Temperature (2m)',
+                    'u10m': 'U-component Wind Speed (10m)',
+                    'v10m': 'V-component Wind Speed (10m)',
+                    'tcwv': 'Total Column Water Vapour',
+                    'z500': 'Geopotential (500hPa)'
+                };
+                const label = document.createElement('h4');
+                label.textContent = varLabels[varName] || varName;
+                label.style.textAlign = 'center';
+                label.style.marginBottom = '0.5rem';
+                wrapper.appendChild(label);
+
+                const displayImg = document.createElement('img');
+                displayImg.src = url;
+                displayImg.alt = `RMSE Difference - ${varName}`;
+                displayImg.className = 'prediction-image';
+                wrapper.appendChild(displayImg);
+                spatialEvalImagesWrapper.appendChild(wrapper);
+                resolve();
+            };
+
+            img.onerror = () => {
+                console.error(`Failed to load spatial eval image for ${varName}`);
+                reject(new Error(`Failed to load spatial eval image: ${varName}`));
+            };
+
+            setTimeout(() => {
+                reject(new Error('Spatial eval image loading timeout'));
+            }, 10000);
+
+            img.src = url;
+        });
+    });
+
+    return Promise.all(promises);
+}
+
 // Update image information display
 function updateImageInfo() {
     const datapointText = datapointSelect.options[datapointSelect.selectedIndex].text;
@@ -267,6 +344,10 @@ function showLoadingState() {
     segmentationImageContainer.style.display = 'none';
     segmentationLoadingSpinner.style.display = 'flex';
     
+    spatialEvalPlaceholderMessage.style.display = 'none';
+    spatialEvalImageContainer.style.display = 'none';
+    spatialEvalLoadingSpinner.style.display = 'flex';
+    
     loadButton.disabled = true;
     loadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
 }
@@ -289,6 +370,11 @@ function showImageState() {
     segmentationImageContainer.style.display = 'block';
     segmentationError.style.display = 'none';
     
+    spatialEvalLoadingSpinner.style.display = 'none';
+    spatialEvalPlaceholderMessage.style.display = 'none';
+    spatialEvalImageContainer.style.display = 'block';
+    spatialEvalError.style.display = 'none';
+    
     loadButton.disabled = false;
     updateLoadButtonState();
 }
@@ -306,6 +392,10 @@ function showErrorState() {
     segmentationLoadingSpinner.style.display = 'none';
     segmentationPlaceholderMessage.style.display = 'none';
     segmentationImageContainer.style.display = 'block';
+    
+    spatialEvalLoadingSpinner.style.display = 'none';
+    spatialEvalPlaceholderMessage.style.display = 'none';
+    spatialEvalImageContainer.style.display = 'block';
     
     loadButton.disabled = false;
     updateLoadButtonState();
@@ -333,6 +423,10 @@ function resetControls() {
     segmentationPlaceholderMessage.style.display = 'flex';
     segmentationImageContainer.style.display = 'none';
     segmentationLoadingSpinner.style.display = 'none';
+    
+    spatialEvalPlaceholderMessage.style.display = 'flex';
+    spatialEvalImageContainer.style.display = 'none';
+    spatialEvalLoadingSpinner.style.display = 'none';
     
     // Update button state
     updateLoadButtonState();
